@@ -516,6 +516,89 @@ def get_documents_list():
         print(f"❌ Error getting documents: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# ===== VOICE PROFILE ENDPOINTS =====
+
+@app.route('/api/voices', methods=['GET'])
+def get_voices():
+    """Get all available voice profiles"""
+    profiles = tts.get_all_profiles()
+    current = tts.get_current_profile()
+    
+    # Group by accent
+    grouped = {}
+    for p in profiles:
+        accent = p['accent']
+        if accent not in grouped:
+            grouped[accent] = []
+        grouped[accent].append(p)
+    
+    return jsonify({
+        'success': True,
+        'profiles': profiles,
+        'grouped': grouped,
+        'current': current,
+        'count': len(profiles)
+    })
+
+@app.route('/api/voices/current', methods=['GET'])
+def get_current_voice():
+    """Get current voice profile"""
+    return jsonify({
+        'success': True,
+        'profile': tts.get_current_profile()
+    })
+
+@app.route('/api/voices/set', methods=['POST'])
+def set_voice():
+    """Set current voice profile"""
+    data = request.json
+    profile = data.get('profile', 'default')
+    
+    result = tts.set_voice_profile(profile)
+    
+    if result['success']:
+        return jsonify({
+            'success': True,
+            'message': f"Voice changed to {result['description']}",
+            'profile': result
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': result['error']
+        }), 400
+
+@app.route('/api/voices/preview', methods=['POST'])
+def preview_voice():
+    """Preview a voice profile"""
+    data = request.json
+    profile = data.get('profile', 'default')
+    text = data.get('text', 'Hello, this is a voice preview.')
+    
+    audio_file = tts.preview_voice(profile, text)
+    
+    if audio_file:
+        return jsonify({
+            'success': True,
+            'audio_url': f"/audio/{audio_file}"
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'Failed to generate preview'
+        }), 500
+
+@app.route('/api/voices/accent/<accent>', methods=['GET'])
+def get_voices_by_accent(accent):
+    """Get voices by accent"""
+    profiles = tts.get_profiles_by_accent(accent)
+    return jsonify({
+        'success': True,
+        'accent': accent,
+        'profiles': profiles,
+        'count': len(profiles)
+    })
+
 @app.route('/api/documents/<doc_id>', methods=['GET'])
 def get_document_details(doc_id):
     """Get detailed information about a specific document"""
@@ -1472,4 +1555,5 @@ def delete_note(doc_id, note_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
+
     app.run(debug=False, host='0.0.0.0', port=5000)
