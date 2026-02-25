@@ -2134,6 +2134,144 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // ===== VOICE PROFILE FUNCTIONS =====
+
+// Load all voices
+async function loadVoices() {
+    try {
+        const response = await fetch(`${API_BASE}/voices`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayVoices(data.profiles);
+            updateCurrentVoice(data.current);
+        }
+    } catch (error) {
+        console.error('Failed to load voices:', error);
+    }
+}
+
+// Load voices by accent
+async function loadVoicesByAccent(accent) {
+    // Update active tab
+    document.querySelectorAll('.accent-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    if (accent === 'all') {
+        loadVoices();
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/voices/accent/${accent}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayVoices(data.profiles);
+        }
+    } catch (error) {
+        console.error('Failed to load voices by accent:', error);
+    }
+}
+
+// Display voices in grid
+function displayVoices(profiles) {
+    const grid = document.getElementById('voiceGrid');
+    grid.innerHTML = '';
+    
+    profiles.forEach(profile => {
+        const card = document.createElement('div');
+        card.className = 'voice-card';
+        card.setAttribute('data-voice', profile.name);
+        
+        // Check if this is current voice
+        if (profile.name === currentVoice) {
+            card.classList.add('selected');
+        }
+        
+        card.innerHTML = `
+            <div class="voice-name">${profile.description}</div>
+            <div class="voice-accent">${profile.accent}</div>
+        `;
+        
+        card.onclick = () => selectVoice(profile.name);
+        
+        grid.appendChild(card);
+    });
+}
+
+// Select a voice
+async function selectVoice(profileName) {
+    try {
+        const response = await fetch(`${API_BASE}/voices/set`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile: profileName })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update UI
+            document.querySelectorAll('.voice-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.getAttribute('data-voice') === profileName) {
+                    card.classList.add('selected');
+                }
+            });
+            
+            updateCurrentVoice(data.profile);
+            showMessage(data.message);
+        }
+    } catch (error) {
+        console.error('Failed to select voice:', error);
+    }
+}
+
+// Update current voice display
+function updateCurrentVoice(profile) {
+    document.getElementById('currentVoiceDisplay').textContent = profile.description;
+    currentVoice = profile.name;
+}
+
+// Preview selected voice
+async function previewSelectedVoice() {
+    const selectedCard = document.querySelector('.voice-card.selected');
+    if (!selectedCard) {
+        alert('Please select a voice first');
+        return;
+    }
+    
+    const profile = selectedCard.getAttribute('data-voice');
+    const text = document.getElementById('previewText').value;
+    
+    try {
+        const response = await fetch(`${API_BASE}/voices/preview`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile: profile, text: text })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.audio_url) {
+            playAudioFromUrl(data.audio_url);
+        }
+    } catch (error) {
+        console.error('Failed to preview voice:', error);
+    }
+}
+
+// Initialize voices on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadVoices();
+});
+
+// Store current voice
+let currentVoice = 'default';
+
         // Copy to clipboard
         function copyToClipboard(elementId) {
             const element = document.getElementById(elementId);
@@ -3358,4 +3496,5 @@
     </script>
 </body>
 </html>
+
 
