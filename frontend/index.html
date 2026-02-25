@@ -115,6 +115,56 @@
 .correct   { background: rgba(0,255,0,0.1);  color: #4ade80; }
 .incorrect { background: rgba(255,0,0,0.1);  color: #f87171; }
 
+/* Dropdown voice selector styles */
+#voiceSelect {
+    background: rgba(139,108,255,0.15);
+    border: 1px solid rgba(139,108,255,0.3);
+    color: white;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+#voiceSelect:hover {
+    background: rgba(139,108,255,0.25);
+    border-color: var(--accent);
+}
+
+#voiceSelect:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(139,108,255,0.2);
+}
+
+#voiceSelect option {
+    background: #1b2150;
+    color: white;
+    padding: 10px;
+}
+
+/* Preview indicator animation */
+@keyframes playing {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.preview-active #previewIcon {
+    animation: playing 1s infinite;
+    color: var(--accent);
+}
+
+.voice-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
 /* Per-question listen button */
 .quiz-listen-btn {
     background: rgba(139,108,255,0.18);
@@ -3496,5 +3546,6 @@ let currentVoice = 'default';
     </script>
 </body>
 </html>
+
 
 
