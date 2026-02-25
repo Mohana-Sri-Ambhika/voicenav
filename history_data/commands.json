@@ -1,0 +1,1202 @@
+[
+  {
+    "type": "command",
+    "command": "what are the iot devices used",
+    "intent": "chat",
+    "document": "prana.pdf",
+    "response": "Special Components: Air quality (gas) sensor for detecting harmful gases Load cell (weight sensor) t",
+    "timestamp": "2026-02-23T17:33:47.025165"
+  },
+  {
+    "type": "command",
+    "command": "who use mobile more",
+    "intent": "chat",
+    "document": "paper.pdf",
+    "response": "2, September 2017 Research paper A look at advanced learners’ use of mobile devices for English lang",
+    "timestamp": "2026-02-23T17:32:40.655327"
+  },
+  {
+    "type": "command",
+    "command": "do women use more phones",
+    "intent": "chat",
+    "document": "paper.pdf",
+    "response": "A lot of studies concerning the use of mobile technology and mobile devices in language learning hav",
+    "timestamp": "2026-02-23T17:32:20.263756"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athens",
+    "response": "Summarized document",
+    "timestamp": "2026-02-23T17:07:25.099602"
+  },
+  {
+    "type": "command",
+    "command": "athens is capital of which country",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athens",
+    "response": "Athens[a] is the capital and largest city of Greece. A significant coastal urban area in the Mediter",
+    "timestamp": "2026-02-23T17:07:00.898373"
+  },
+  {
+    "type": "command",
+    "command": "who is athenas father",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "In Greek mythology, Athena was born from the forehead of her father Zeus; in Hesiod's Theogony, this",
+    "timestamp": "2026-02-23T17:05:16.685811"
+  },
+  {
+    "type": "command",
+    "command": "who is athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena[b] or Athene,[c] often given the epithet Pallas,[d] is an ancient Greek goddess associated wi",
+    "timestamp": "2026-02-23T17:05:03.588717"
+  },
+  {
+    "type": "command",
+    "command": "who is athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena[b] or Athene,[c] often given the epithet Pallas,[d] is an ancient Greek goddess associated wi",
+    "timestamp": "2026-02-23T17:02:38.190617"
+  },
+  {
+    "type": "command",
+    "command": "Who is mentioned?",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[77] Yet another possible meaning is mentioned in Diogenes Laertius' biography of Democritus, that A",
+    "timestamp": "2026-02-23T17:02:14.733924"
+  },
+  {
+    "type": "command",
+    "command": "who is Athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Answer the question based on the context. [82] Athena was worshipped at festivals such as Chalceia a",
+    "timestamp": "2026-02-23T16:35:24.229987"
+  },
+  {
+    "type": "command",
+    "command": "who is athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Answer the question based on the context. [82]Context: [209][142]In Books V–VI of the Iliad, Athena ",
+    "timestamp": "2026-02-23T16:33:14.558668"
+  },
+  {
+    "type": "command",
+    "command": "goddess of wisdom is",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Her head appears on the 50 1915S PanamaPacific commemorative coin.241 Modern interpretations One of ",
+    "timestamp": "2026-02-23T14:52:32.331574"
+  },
+  {
+    "type": "command",
+    "command": "who is athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "I'm not sure about that specifically. Based on the document summary: Athenab or Athenec often given ",
+    "timestamp": "2026-02-23T14:52:16.126186"
+  },
+  {
+    "type": "command",
+    "command": "athenas father",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "During this period the priestesses of Athena or plyntrídes performed a cleansing ritual within the E",
+    "timestamp": "2026-02-23T14:42:14.010501"
+  },
+  {
+    "type": "command",
+    "command": "who is athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "I'm not sure about that specifically. Based on the document summary: Athenab or Athenec often given ",
+    "timestamp": "2026-02-23T14:41:42.093852"
+  },
+  {
+    "type": "command",
+    "command": "give summary on birth",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized: Birth",
+    "timestamp": "2026-02-23T13:38:54.642089"
+  },
+  {
+    "type": "command",
+    "command": "new summary of",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-23T13:38:45.897128"
+  },
+  {
+    "type": "command",
+    "command": "classical arts",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-23T13:36:52.044993"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T13:35:50.527904"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T13:35:44.545824"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T13:35:39.097558"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T13:35:31.803054"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T13:34:52.395738"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-23T13:33:50.842652"
+  },
+  {
+    "type": "command",
+    "command": "read classical art",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading section: Classical art",
+    "timestamp": "2026-02-23T13:30:47.961436"
+  },
+  {
+    "type": "command",
+    "command": "summary section birth",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized: Birth",
+    "timestamp": "2026-02-22T22:49:59.519394"
+  },
+  {
+    "type": "command",
+    "command": "in birth",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-22T22:49:15.108788"
+  },
+  {
+    "type": "command",
+    "command": "of section birth",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-22T22:48:59.194528"
+  },
+  {
+    "type": "command",
+    "command": "note of this summary",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-22T22:47:55.245539"
+  },
+  {
+    "type": "command",
+    "command": "not this summary",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-22T22:47:50.944003"
+  },
+  {
+    "type": "command",
+    "command": "notice summary",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-22T22:47:43.255895"
+  },
+  {
+    "type": "command",
+    "command": "not this summary",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-22T22:47:35.974927"
+  },
+  {
+    "type": "command",
+    "command": "read birth",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading section: Birth",
+    "timestamp": "2026-02-22T22:47:28.017002"
+  },
+  {
+    "type": "command",
+    "command": "note athena is an ancient greek goddess associated with wisdom, warfare, and handicraft. she was later syncretized with the roman goddess minerva. athena was regarded as the patron and protectress of various cities across greece, particularly the city of athens. the parthenon on the acropolis of athens is dedicated to her. in greek mythology, athena was born from the forehead of her father zeus. she was also a warrior goddess, and was believed to lead soldiers into battle as athena promachos. her main festival in athens was the panathenaia, which was celebrated in midsummer. athena was one of the three goddesses whose feud resulted in the trojan war. since the renaissance, athena has become an international symbol of wisdom, the arts, and classical learning. western artists and allegorists have often used athena as a symbol of freedom and democracy. athena is associated with the city of athens.",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Saved note: athena is an ancient greek goddess associated with",
+    "timestamp": "2026-02-22T22:46:33.272244"
+  },
+  {
+    "type": "command",
+    "command": "notes of the summary",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-22T22:45:26.859694"
+  },
+  {
+    "type": "command",
+    "command": "summarize lady of athens",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized: Lady of Athens",
+    "timestamp": "2026-02-22T22:44:25.782196"
+  },
+  {
+    "type": "command",
+    "command": "make notes on summary",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-22T22:36:58.705759"
+  },
+  {
+    "type": "command",
+    "command": "summarize etymology",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized: Etymology",
+    "timestamp": "2026-02-22T22:34:27.693602"
+  },
+  {
+    "type": "command",
+    "command": "read 1",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading overview",
+    "timestamp": "2026-02-22T22:20:14.609214"
+  },
+  {
+    "type": "command",
+    "command": "read 6",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading overview",
+    "timestamp": "2026-02-22T22:19:50.093598"
+  },
+  {
+    "type": "command",
+    "command": "read 1",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading overview",
+    "timestamp": "2026-02-22T22:19:23.902341"
+  },
+  {
+    "type": "command",
+    "command": "note greek is cool",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Saved note: greek is cool",
+    "timestamp": "2026-02-22T21:04:11.268841"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T21:03:30.722373"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T21:03:25.339299"
+  },
+  {
+    "type": "command",
+    "command": "note phones are cool",
+    "intent": "note",
+    "document": "paper.pdf",
+    "response": "Saved note: phones are cool",
+    "timestamp": "2026-02-22T21:02:15.678713"
+  },
+  {
+    "type": "command",
+    "command": "read 1. introduction",
+    "intent": "read",
+    "document": "paper.pdf",
+    "response": "Reading section: 1. Introduction",
+    "timestamp": "2026-02-22T21:01:53.454520"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "paper.pdf",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T21:01:28.988114"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "paper.pdf",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T21:01:23.064729"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T20:59:46.236035"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T20:59:43.629375"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T20:59:41.210170"
+  },
+  {
+    "type": "command",
+    "command": "read survey of mythic history",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Reading section: Survey of mythic history",
+    "timestamp": "2026-02-22T20:59:34.397924"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-22T20:59:32.577553"
+  },
+  {
+    "type": "command",
+    "command": "read introduction",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Reading section: Introduction",
+    "timestamp": "2026-02-22T20:59:04.510517"
+  },
+  {
+    "type": "command",
+    "command": "read origins of the world and the gods",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Greek_mythology",
+    "response": "Reading section: Origins of the world and the gods",
+    "timestamp": "2026-02-22T20:58:23.068068"
+  },
+  {
+    "type": "command",
+    "command": "read bibliography",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Reading section: Bibliography",
+    "timestamp": "2026-02-23T18:20:01.618521"
+  },
+  {
+    "type": "command",
+    "command": "read ancient greece",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Reading section: Ancient Greece",
+    "timestamp": "2026-02-23T18:21:05.895747"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T18:22:41.434623"
+  },
+  {
+    "type": "command",
+    "command": "capital of greece",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Greece has the longest coastline on the Mediterranean basin, spanning thousands of islands and nine ",
+    "timestamp": "2026-02-23T18:23:14.037611"
+  },
+  {
+    "type": "command",
+    "command": "monarcy of greece",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "– in Europe (light green & dark grey)– in the European Union (light green) Greece,[c] officially the",
+    "timestamp": "2026-02-23T18:23:40.476868"
+  },
+  {
+    "type": "command",
+    "command": "bye",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "I'm not sure about that. Could you rephrase your question or ask something more specific about the d",
+    "timestamp": "2026-02-23T18:23:57.413039"
+  },
+  {
+    "type": "command",
+    "command": "100 quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T18:25:00.058413"
+  },
+  {
+    "type": "command",
+    "command": "greece is in which continent",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Greece was annexed by Rome in the second century BC and became an integral part of the Roman Empire ",
+    "timestamp": "2026-02-23T18:33:00.446505"
+  },
+  {
+    "type": "command",
+    "command": "greece capital",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Greece has the longest coastline on the Mediterranean basin, spanning thousands of islands and nine ",
+    "timestamp": "2026-02-23T18:33:17.189312"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "document_2026-02-22 (2).txt",
+    "response": "Summarized document",
+    "timestamp": "2026-02-23T21:35:54.990633"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Summarized document",
+    "timestamp": "2026-02-23T22:37:19.320972"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Summarized document",
+    "timestamp": "2026-02-23T22:43:07.089844"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Greece",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-23T22:43:21.806205"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-24T10:12:53.071738"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-24T10:13:19.548100"
+  },
+  {
+    "type": "command",
+    "command": "capital of greece",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[3] Athena was regarded as the patron and protectress of various cities across Greece, particularly ",
+    "timestamp": "2026-02-24T10:19:51.384062"
+  },
+  {
+    "type": "command",
+    "command": "father of athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "In Greek mythology, Athena was born from the forehead of her father Zeus; in Hesiod's Theogony, this",
+    "timestamp": "2026-02-24T10:20:06.384545"
+  },
+  {
+    "type": "command",
+    "command": "is athena goddess of wisdom",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena[b] or Athene,[c] often given the epithet Pallas,[d] is an ancient Greek goddess associated wi",
+    "timestamp": "2026-02-24T10:20:46.833631"
+  },
+  {
+    "type": "command",
+    "command": "why athena is goddess of wisdom",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena[b] or Athene,[c] often given the epithet Pallas,[d] is an ancient Greek goddess associated wi",
+    "timestamp": "2026-02-24T10:21:12.388708"
+  },
+  {
+    "type": "command",
+    "command": "who use more phones female or male",
+    "intent": "chat",
+    "document": "paper.pdf",
+    "response": "A lot of studies concerning the use of mobile technology and mobile devices in language learning hav",
+    "timestamp": "2026-02-24T10:39:52.839254"
+  },
+  {
+    "type": "command",
+    "command": "females use more mobile",
+    "intent": "chat",
+    "document": "paper.pdf",
+    "response": "2, September 2017 Research paper A look at advanced learners’ use of mobile devices for English lang",
+    "timestamp": "2026-02-24T10:40:15.354418"
+  },
+  {
+    "type": "command",
+    "command": "summary of the doc",
+    "intent": "chat",
+    "document": "paper.pdf",
+    "response": "I'm not sure about that. Could you rephrase your question or ask something more specific about the d",
+    "timestamp": "2026-02-24T10:40:39.061734"
+  },
+  {
+    "type": "command",
+    "command": "why robots in construction",
+    "intent": "chat",
+    "document": "Robotics_in_Construction_Final_Assignment.docx",
+    "response": "Construction robots may be stationary (e.g., robotic arms in prefabrication), mobile (wheeled/legged",
+    "timestamp": "2026-02-24T10:48:38.843961"
+  },
+  {
+    "type": "command",
+    "command": "who is athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena[b] or Athene,[c] often given the epithet Pallas,[d] is an ancient Greek goddess associated wi",
+    "timestamp": "2026-02-24T11:06:49.196875"
+  },
+  {
+    "type": "command",
+    "command": "athena and hepestus love",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Another version of the myth of the Athenian maidens is told in Metamorphoses by the Roman poet Ovid ",
+    "timestamp": "2026-02-24T11:07:11.554992"
+  },
+  {
+    "type": "command",
+    "command": "athena and ares",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Zeus, the chief god, specifically assigned the sphere of war to Ares, the god of war, and Athena. At",
+    "timestamp": "2026-02-24T11:07:30.610916"
+  },
+  {
+    "type": "command",
+    "command": "athena took whose side in tojan war",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena's moral and military superiority to Ares derived in part from the fact that she represented t",
+    "timestamp": "2026-02-24T11:07:48.905173"
+  },
+  {
+    "type": "command",
+    "command": "athena role in trojan war",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Along with Aphrodite and Hera, Athena was one of the three goddesses whose feud resulted in the Troj",
+    "timestamp": "2026-02-24T11:08:13.428687"
+  },
+  {
+    "type": "command",
+    "command": "who is athenas father",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[181] Her actions lead him to travel around to Odysseus's comrades and ask about his father. [182] A",
+    "timestamp": "2026-02-24T11:11:55.269869"
+  },
+  {
+    "type": "command",
+    "command": "mother of athena",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[4] After serving as the judge at the trial of Orestes in which he was acquitted of having murdered ",
+    "timestamp": "2026-02-24T11:12:17.348103"
+  },
+  {
+    "type": "command",
+    "command": "mentis",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "I couldn't find specific information about that in the document. Try rephrasing or ask about a diffe",
+    "timestamp": "2026-02-24T11:12:34.814655"
+  },
+  {
+    "type": "command",
+    "command": "metis",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[115][116] In the version recounted by Hesiod in his Theogony, Zeus married Metis, who is described ",
+    "timestamp": "2026-02-24T11:12:49.824846"
+  },
+  {
+    "type": "command",
+    "command": "athena's mother name",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[4] After serving as the judge at the trial of Orestes in which he was acquitted of having murdered ",
+    "timestamp": "2026-02-24T11:13:06.807011"
+  },
+  {
+    "type": "command",
+    "command": "athena and medusa curse",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[162][163] Athena lent Perseus her polished bronze shield to view Medusa's reflection without becomi",
+    "timestamp": "2026-02-24T11:13:35.245427"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T11:48:41.499719"
+  },
+  {
+    "type": "command",
+    "command": "what is parthenon",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Parthenon",
+    "response": "[63] Other craftsmen were necessary for the building of the Parthenon, specifically carpenters and m",
+    "timestamp": "2026-02-24T12:13:20.228998"
+  },
+  {
+    "type": "command",
+    "command": "athena temple",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Parthenon",
+    "response": "He contends that \"Athena's temple was never officially called the Parthenon and she herself most lik",
+    "timestamp": "2026-02-24T12:13:40.100227"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Parthenon",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-24T13:13:56.104557"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Parthenon",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T13:14:50.925425"
+  },
+  {
+    "type": "command",
+    "command": "read",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading overview",
+    "timestamp": "2026-02-24T14:26:21.018281"
+  },
+  {
+    "type": "command",
+    "command": "summarise",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-24T14:27:47.430855"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-24T14:39:29.951264"
+  },
+  {
+    "type": "command",
+    "command": "show notes",
+    "intent": "explain",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[13] Classical scholar Charles Penglase notes that Athena resembles Inanna in her role as a \"terrify",
+    "timestamp": "2026-02-24T18:13:44.449133"
+  },
+  {
+    "type": "command",
+    "command": "show notes",
+    "intent": "explain",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "[13] Classical scholar Charles Penglase notes that Athena resembles Inanna in her role as a \"terrify",
+    "timestamp": "2026-02-24T18:14:33.987788"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 18:33:20",
+    "timestamp": "2026-02-24T18:33:20.490694"
+  },
+  {
+    "type": "command",
+    "command": "export",
+    "intent": "export",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Exported data",
+    "timestamp": "2026-02-24T18:35:14.893461"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 18:42:19",
+    "timestamp": "2026-02-24T18:42:19.115166"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 18:42:24",
+    "timestamp": "2026-02-24T18:42:24.698591"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T19:14:43.139799"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T19:35:31.960880"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athens",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T19:39:14.232724"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athens",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-24T23:15:56.538205"
+  },
+  {
+    "type": "command",
+    "command": "note greek is cool",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Saved note: greek is cool",
+    "timestamp": "2026-02-24T23:34:43.308525"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T23:38:47.593382"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-24T23:41:45.261498"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 00:15:35",
+    "timestamp": "2026-02-25T00:15:35.966297"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 00:16:42",
+    "timestamp": "2026-02-25T00:16:42.781258"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 00:17:47",
+    "timestamp": "2026-02-25T00:17:47.463555"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 00:57:13",
+    "timestamp": "2026-02-25T00:57:13.717094"
+  },
+  {
+    "type": "command",
+    "command": "voice note recorded",
+    "intent": "note",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Voice note recorded at 00:58:50",
+    "timestamp": "2026-02-25T00:58:50.744655"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-25T01:45:07.659433"
+  },
+  {
+    "type": "command",
+    "command": "summarize",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized document",
+    "timestamp": "2026-02-25T01:45:27.561392"
+  },
+  {
+    "type": "command",
+    "command": "summarize classical art",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized: Classical art",
+    "timestamp": "2026-02-25T01:45:43.074463"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T02:11:33.496677"
+  },
+  {
+    "type": "command",
+    "command": "read overview",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading overview",
+    "timestamp": "2026-02-25T02:13:35.722728"
+  },
+  {
+    "type": "command",
+    "command": "read classical art",
+    "intent": "read",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Reading section: Classical art",
+    "timestamp": "2026-02-25T02:14:34.281893"
+  },
+  {
+    "type": "command",
+    "command": "history",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:08:10.647425"
+  },
+  {
+    "type": "command",
+    "command": "scroll",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:08:31.287691"
+  },
+  {
+    "type": "command",
+    "command": "strong strong",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:09:31.200101"
+  },
+  {
+    "type": "command",
+    "command": "scroll",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:09:47.467421"
+  },
+  {
+    "type": "command",
+    "command": " crawl",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:11:07.617962"
+  },
+  {
+    "type": "command",
+    "command": "up",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:12:16.550226"
+  },
+  {
+    "type": "command",
+    "command": "rolls-roy",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:13:51.604233"
+  },
+  {
+    "type": "command",
+    "command": "summarize classical art",
+    "intent": "summarize",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Summarized: Classical art",
+    "timestamp": "2026-02-25T03:14:11.748067"
+  },
+  {
+    "type": "command",
+    "command": "crawl",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:30:37.287349"
+  },
+  {
+    "type": "command",
+    "command": " scroll",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T03:30:38.560844"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T03:58:38.545263"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T03:58:51.577658"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:13:08.597892"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:13:13.518651"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:13:17.089763"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:13:21.317096"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:13:23.687075"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:13:26.818459"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena#Classical_art",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:26:51.455041"
+  },
+  {
+    "type": "command",
+    "command": "quiz",
+    "intent": "quiz",
+    "document": "https://en.wikipedia.org/wiki/Athena#Classical_art",
+    "response": "Generated 5 quiz questions",
+    "timestamp": "2026-02-25T05:26:58.244461"
+  },
+  {
+    "type": "command",
+    "command": "account",
+    "intent": "unknown",
+    "document": "https://en.wikipedia.org/wiki/Athena#Classical_art",
+    "response": "Command not recognized. Say 'help' for options.",
+    "timestamp": "2026-02-25T05:27:48.446599"
+  },
+  {
+    "type": "command",
+    "command": "bookmark",
+    "intent": "bookmark",
+    "document": "https://en.wikipedia.org/wiki/Athena#Classical_art",
+    "response": "Bookmarked: Current section",
+    "timestamp": "2026-02-25T05:31:18.575436"
+  },
+  {
+    "type": "command",
+    "command": "What is this document about?",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Hello! Ask me anything about your document.",
+    "timestamp": "2026-02-25T05:39:43.071219"
+  },
+  {
+    "type": "command",
+    "command": "who is athena father",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "I encountered an error processing your question. Please try again.",
+    "timestamp": "2026-02-25T05:40:00.467813"
+  },
+  {
+    "type": "command",
+    "command": "who is athenas father",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena’s father is **Zeus**. The excerpts say she was born from his forehead after he swallowed his ",
+    "timestamp": "2026-02-25T05:47:21.463209"
+  },
+  {
+    "type": "command",
+    "command": "athenas mother",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "The excerpts you provided do not mention who Athena’s mother is. They describe her origins from Zeus",
+    "timestamp": "2026-02-25T05:47:33.944601"
+  },
+  {
+    "type": "command",
+    "command": "athena is god of",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Athena is a goddess of several domains:\n\n* **War** – she is a war goddess who represents the intelle",
+    "timestamp": "2026-02-25T05:47:56.775156"
+  },
+  {
+    "type": "command",
+    "command": "bye",
+    "intent": "chat",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "I couldn't find specific information about that in the document. Try rephrasing or ask about a diffe",
+    "timestamp": "2026-02-25T05:48:13.932381"
+  },
+  {
+    "type": "command",
+    "command": "bookmark",
+    "intent": "bookmark",
+    "document": "https://en.wikipedia.org/wiki/Athena",
+    "response": "Bookmarked: Current section",
+    "timestamp": "2026-02-25T05:50:10.460640"
+  }
+]

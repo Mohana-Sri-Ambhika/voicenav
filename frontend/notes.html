@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceNav – My Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0b0f1f;
+            --panel: rgba(20, 24, 48, 0.95);
+            --panel-soft: rgba(20, 24, 48, 0.85);
+            --accent: #8b6cff;
+            --accent-soft: #6c7cff;
+            --glow: rgba(139, 108, 255, 0.6);
+            --text-light: #ffffff;
+            --text-dim: rgba(255,255,255,0.7);
+            --panel-border: rgba(255,255,255,0.04);
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #8b6cff, #0b0f1f 75%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--panel-border);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Filters */
+        .filters {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-dim);
+            border: 1px solid var(--panel-border);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 30px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--glow);
+        }
+
+        /* Notes Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .note-card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid var(--panel-border);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139,108,255,0.3);
+            border-color: var(--accent);
+        }
+
+        .note-card.voice {
+            border-left: 6px solid var(--accent);
+        }
+
+        .note-card.text {
+            border-left: 6px solid var(--accent-soft);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(139,108,255,0.2);
+        }
+
+        .note-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-type .icon {
+            font-size: 1.5rem;
+        }
+
+        .note-type .badge {
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .note-date {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .note-content {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 1rem;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .note-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .btn.play {
+            background: linear-gradient(135deg, #8b6cff, #6c7cff);
+            animation: pulse 2s infinite;
+        }
+
+        .btn.play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .btn.delete {
+            background: #f72585;
+        }
+
+        .btn.export {
+            background: #4ade80;
+            color: #0b0f1f;
+        }
+
+        /* Audio Player */
+        .audio-player {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(139,108,255,0.15);
+            border-radius: 16px;
+            border: 1px solid var(--accent);
+            animation: slideDown 0.3s ease;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            outline: none;
+            border-radius: 30px;
+        }
+
+        .audio-player audio::-webkit-media-controls-panel {
+            background: var(--panel);
+            border-radius: 30px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(139,108,255,0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(139,108,255,0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(139,108,255,0);
+            }
+        }
+
+        /* Document Info */
+        .document-info {
+            background: rgba(139,108,255,0.1);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--accent);
+            word-break: break-word;
+        }
+
+        .document-name {
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--panel);
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--accent);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(139,108,255,0.2);
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--error);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideUp 0.3s ease;
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .toast.success { background: var(--accent); }
+        .toast.error { background: var(--error); }
+        .toast.info { background: var(--accent-soft); }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--panel);
+            border-radius: 30px;
+            color: var(--text-dim);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        /* Audio badge */
+        .audio-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(139,108,255,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .now-playing {
+            background: rgba(76, 201, 240, 0.2);
+            color: #4cc9f0;
+            border-color: #4cc9f0;
+            animation: pulse-playing 1.5s infinite;
+        }
+
+        @keyframes pulse-playing {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span style="font-size: 2.5rem;">🎤</span>
+                <h1>My Notes</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Home</a>
+                <a href="/history.html" class="nav-link">📊 History</a>
+                <a href="/notes.html" class="nav-link active">📝 Notes</a>
+                <button class="nav-link" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalNotes">0</div>
+                <div class="stat-label">Total Notes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="voiceNotes">0</div>
+                <div class="stat-label">Voice Notes 🎤</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="textNotes">0</div>
+                <div class="stat-label">Text Notes 📝</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="documents">0</div>
+                <div class="stat-label">Documents</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all" onclick="filterNotes('all')">All Notes</button>
+                <button class="filter-btn" data-filter="voice" onclick="filterNotes('voice')">🎤 Voice Notes</button>
+                <button class="filter-btn" data-filter="text" onclick="filterNotes('text')">📝 Text Notes</button>
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn" onclick="exportAllNotes()">📥 Export All</button>
+                <button class="filter-btn" onclick="refreshNotes()">🔄 Refresh</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search notes..." onkeyup="searchNotes()">
+            </div>
+        </div>
+
+        <!-- Notes Grid -->
+        <div class="notes-grid" id="notesGrid">
+            <div class="empty-state">
+                <div class="icon">📝</div>
+                <h3>No Notes Found</h3>
+                <p>Upload a document and start taking notes!</p>
+                <button class="btn" onclick="window.location.href='/'">Go to Home</button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Note Detail Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Note Details</h2>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let allNotes = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const notesPerPage = 12;
+        let currentlyPlaying = null;
+        let currentAudio = null;
+
+        // Check authentication
+        function checkAuth() {
+            const currentUser = sessionStorage.getItem('voicenav_current_user');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('voicenav_current_user');
+            localStorage.removeItem('voicenav_remember');
+            window.location.href = 'login.html';
+        }
+
+        // Load all notes from all documents
+        async function loadAllNotes() {
+            showToast('Loading notes...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/notes/all`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allNotes = data.notes || [];
+                    console.log('Total notes loaded:', allNotes.length);
+                    
+                    // Sort by timestamp (newest first)
+                    allNotes.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    updateStats();
+                    displayNotes();
+                    
+                    if (allNotes.length === 0) {
+                        showToast('No notes found', 'info');
+                    } else {
+                        showToast(`Loaded ${allNotes.length} notes`, 'success');
+                    }
+                } else {
+                    showToast('Failed to load notes: ' + data.error, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error loading notes:', error);
+                showToast('Failed to load notes: ' + error.message, 'error');
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const voiceNotes = allNotes.filter(n => n.source === 'voice').length;
+            const textNotes = allNotes.filter(n => n.source !== 'voice').length;
+            
+            document.getElementById('totalNotes').textContent = allNotes.length;
+            document.getElementById('voiceNotes').textContent = voiceNotes;
+            document.getElementById('textNotes').textContent = textNotes;
+            
+            // Get unique documents count
+            const uniqueDocs = new Set(allNotes.map(n => n.document_id)).size;
+            document.getElementById('documents').textContent = uniqueDocs;
+        }
+
+        // Display notes with current filter and pagination
+        function displayNotes() {
+            const grid = document.getElementById('notesGrid');
+            
+            // Apply filter
+            let filteredNotes = allNotes;
+            if (currentFilter === 'voice') {
+                filteredNotes = allNotes.filter(n => n.source === 'voice');
+            } else if (currentFilter === 'text') {
+                filteredNotes = allNotes.filter(n => n.source !== 'voice');
+            }
+
+            // Apply search
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filteredNotes = filteredNotes.filter(n => 
+                    n.text.toLowerCase().includes(searchTerm) ||
+                    (n.document_name && n.document_name.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (filteredNotes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📝</div>
+                        <h3>No Notes Found</h3>
+                        <p>Try changing your filters or upload a document to start taking notes!</p>
+                    </div>
+                `;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            // Pagination
+            const totalPages = Math.ceil(filteredNotes.length / notesPerPage);
+            const start = (currentPage - 1) * notesPerPage;
+            const end = start + notesPerPage;
+            const pageNotes = filteredNotes.slice(start, end);
+
+            // Generate HTML
+            grid.innerHTML = pageNotes.map(note => {
+                const isVoice = note.source === 'voice';
+                const date = new Date(note.timestamp).toLocaleString();
+                
+                // Construct audio file path
+                let audioUrl = null;
+                if (note.audio_file) {
+                    audioUrl = `http://localhost:5000/temp_audio/${note.audio_file}`;
+                }
+                
+                const documentName = note.document_name || 'Unknown Document';
+                const documentId = note.document_id || 'unknown';
+                
+                return `
+                    <div class="note-card ${isVoice ? 'voice' : 'text'}" data-note-id="${note.id}">
+                        <div class="note-header">
+                            <div class="note-type">
+                                <span class="icon">${isVoice ? '🎤' : '📝'}</span>
+                                <span class="badge">${isVoice ? 'Voice Note' : 'Text Note'}</span>
+                                ${isVoice && note.audio_file ? '<span class="audio-badge">🔊 Audio</span>' : ''}
+                            </div>
+                            <div class="note-date">${date}</div>
+                        </div>
+                        
+                        <div class="document-info">
+                            <div class="document-name">📄 ${documentName}</div>
+                        </div>
+
+                        <div class="note-content">
+                            ${note.text}
+                        </div>
+
+                        <div class="note-meta">
+                            <span class="meta-item">
+                                <span>📊</span> Source: ${note.source || 'text'}
+                            </span>
+                            ${note.audio_file ? `
+                                <span class="meta-item">
+                                    <span>🎵</span> Audio file
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <div class="note-actions">
+                            <button class="btn" onclick="viewNoteDetails('${note.id}')">
+                                <span>🔍</span> View
+                            </button>
+                            ${isVoice && audioUrl ? `
+                                <button class="btn play" onclick="playAudioNote('${audioUrl}', '${note.id}', this)">
+                                    <span>▶️</span> Play
+                                </button>
+                                <button class="btn" onclick="downloadAudio('${audioUrl}')">
+                                    <span>⬇️</span> Download
+                                </button>
+                            ` : ''}
+                            <button class="btn" onclick="copyNoteText('${note.text.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                                <span>📋</span> Copy
+                            </button>
+                            <button class="btn delete" onclick="deleteNote('${note.id}', '${note.document_id}')">
+                                <span>🗑️</span> Delete
+                            </button>
+                        </div>
+
+                        ${isVoice && audioUrl ? `
+                            <div class="audio-player" id="player-${note.id}" style="display: none;">
+                                <audio controls style="width: 100%;" id="audio-${note.id}">
+                                    <source src="${audioUrl}" type="audio/wav">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Update pagination
+            updatePagination(totalPages);
+        }
+
+        // Update pagination buttons
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            pagination.innerHTML = html;
+        }
+
+        // Go to specific page
+        function goToPage(page) {
+            currentPage = page;
+            displayNotes();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Filter notes
+        function filterNotes(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            displayNotes();
+        }
+
+        // Search notes
+        function searchNotes() {
+            currentPage = 1;
+            displayNotes();
+        }
+
+        // Refresh notes
+        function refreshNotes() {
+            showToast('Refreshing notes...', 'info');
+            loadAllNotes();
+        }
+
+        // Play audio note with improved playback
+        function playAudioNote(audioUrl, noteId, button) {
+            console.log('Playing audio:', audioUrl, 'for note:', noteId);
+            
+            // Stop currently playing audio if any
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+                
+                // Hide all players
+                document.querySelectorAll('[id^="player-"]').forEach(p => {
+                    p.style.display = 'none';
+                });
+                
+                // Reset button text
+                if (currentlyPlaying) {
+                    const prevButton = document.querySelector(`[onclick*="'${currentlyPlaying}'"]`);
+                    if (prevButton) {
+                        prevButton.innerHTML = '<span>▶️</span> Play';
+                        prevButton.classList.remove('now-playing');
+                    }
+                }
+            }
+            
+            // Show player for this note
+            const playerDiv = document.getElementById(`player-${noteId}`);
+            if (playerDiv) {
+                // Hide all other players
+                document.querySelectorAll('[id^="player-"]').forEach(p => {
+                    if (p.id !== `player-${noteId}`) {
+                        p.style.display = 'none';
+                    }
+                });
+                
+                // Show and play this one
+                playerDiv.style.display = 'block';
+                const audio = document.getElementById(`audio-${noteId}`);
+                
+                if (audio) {
+                    currentAudio = audio;
+                    
+                    audio.play().then(() => {
+                        currentlyPlaying = noteId;
+                        button.innerHTML = '<span>⏸️</span> Pause';
+                        button.classList.add('now-playing');
+                        showToast('▶️ Playing audio note...', 'info');
+                    }).catch(e => {
+                        console.error('Audio play error:', e);
+                        showToast('Failed to play audio: ' + e.message, 'error');
+                    });
+                    
+                    audio.onended = () => {
+                        playerDiv.style.display = 'none';
+                        button.innerHTML = '<span>▶️</span> Play';
+                        button.classList.remove('now-playing');
+                        currentAudio = null;
+                        currentlyPlaying = null;
+                        showToast('✅ Audio playback finished', 'success');
+                    };
+                    
+                    audio.onpause = () => {
+                        button.innerHTML = '<span>▶️</span> Play';
+                        button.classList.remove('now-playing');
+                    };
+                    
+                    audio.onplay = () => {
+                        button.innerHTML = '<span>⏸️</span> Pause';
+                        button.classList.add('now-playing');
+                    };
+                }
+            }
+        }
+
+        // Download audio file
+        function downloadAudio(audioUrl) {
+            const a = document.createElement('a');
+            a.href = audioUrl;
+            a.download = audioUrl.split('/').pop();
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('⬇️ Downloading audio...', 'success');
+        }
+
+        // View note details in modal
+        function viewNoteDetails(noteId) {
+            const note = allNotes.find(n => n.id === noteId);
+            if (!note) return;
+
+            const isVoice = note.source === 'voice';
+            const date = new Date(note.timestamp).toLocaleString();
+            const audioUrl = note.audio_file ? `http://localhost:5000/temp_audio/${note.audio_file}` : null;
+            const documentName = note.document_name || 'Unknown Document';
+
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">${isVoice ? '🎤' : '📝'}</span>
+                        <h3 style="color: var(--accent);">${isVoice ? 'Voice Note' : 'Text Note'}</h3>
+                    </div>
+                    
+                    <div style="background: rgba(139,108,255,0.1); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+                        <p style="font-size: 1.1rem; line-height: 1.6;">${note.text}</p>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>📄 Document:</strong> ${documentName}</p>
+                        <p><strong>🆔 Document ID:</strong> ${note.document_id}</p>
+                        <p><strong>📅 Created:</strong> ${date}</p>
+                        <p><strong>🎯 Source:</strong> ${note.source}</p>
+                        ${note.audio_file ? `<p><strong>🎵 Audio File:</strong> ${note.audio_file}</p>` : ''}
+                    </div>
+
+                    ${isVoice && audioUrl ? `
+                        <div style="margin: 20px 0;">
+                            <h4 style="margin-bottom: 10px;">Audio Recording:</h4>
+                            <audio controls style="width: 100%; margin-top: 10px;" id="modal-audio" controlsList="nodownload">
+                                <source src="${audioUrl}" type="audio/wav">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    ` : ''}
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                        <button class="btn" onclick="copyNoteText('${note.text.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                            📋 Copy Text
+                        </button>
+                        ${isVoice && audioUrl ? `
+                            <button class="btn play" onclick="document.getElementById('modal-audio').play()">
+                                ▶️ Play Audio
+                            </button>
+                            <button class="btn" onclick="downloadAudio('${audioUrl}')">
+                                ⬇️ Download Audio
+                            </button>
+                        ` : ''}
+                        <button class="btn delete" onclick="deleteNote('${note.id}', '${note.document_id}')">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Note Details';
+            document.getElementById('noteModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('noteModal').classList.remove('active');
+            
+            // Pause any playing audio in modal
+            const modalAudio = document.getElementById('modal-audio');
+            if (modalAudio) {
+                modalAudio.pause();
+            }
+        }
+
+        // Copy note text
+        function copyNoteText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Note copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy note', 'error');
+            });
+        }
+
+        // Delete note
+        async function deleteNote(noteId, documentId) {
+            if (!confirm('Are you sure you want to delete this note?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/notes/${documentId}/${noteId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Note deleted successfully!', 'success');
+                    loadAllNotes();
+                } else {
+                    showToast('Failed to delete note: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting note:', error);
+                showToast('Error deleting note: ' + error.message, 'error');
+            }
+        }
+
+        // Export all notes
+        function exportAllNotes() {
+            let exportText = "=".repeat(70) + "\n";
+            exportText += "🎤 VOICENAV AI - ALL NOTES EXPORT\n";
+            exportText += "=".repeat(70) + "\n";
+            exportText += `Export Date: ${new Date().toLocaleString()}\n`;
+            exportText += `Total Notes: ${allNotes.length}\n`;
+            exportText += "-".repeat(70) + "\n\n";
+
+            allNotes.forEach((note, index) => {
+                const isVoice = note.source === 'voice';
+                const date = new Date(note.timestamp).toLocaleString();
+                
+                exportText += `Note #${index + 1}\n`;
+                exportText += `${isVoice ? '🎤' : '📝'} Type: ${isVoice ? 'Voice Note' : 'Text Note'}\n`;
+                exportText += `📄 Document: ${note.document_name || 'Unknown'}\n`;
+                exportText += `📅 Created: ${date}\n`;
+                exportText += `📝 Content: ${note.text}\n`;
+                if (note.audio_file) {
+                    exportText += `🎵 Audio: ${note.audio_file}\n`;
+                }
+                exportText += "-".repeat(50) + "\n\n";
+            });
+
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `voicenav_notes_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Notes exported successfully!', 'success');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = checkAuth();
+            if (user) {
+                loadAllNotes();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

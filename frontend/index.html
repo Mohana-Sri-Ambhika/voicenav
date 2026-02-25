@@ -1,0 +1,3361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceNav – Document Assistant</title>
+    <style>
+        /* ========= RESET ========= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========= THEME (from layout) ========= */
+        :root {
+            --bg: #0b0f1f;
+            --panel: rgba(20, 24, 48, 0.85);
+            --panel-soft: rgba(20, 24, 48, 0.65);
+            --accent: #8b6cff;
+            --accent-soft: #6c7cff;
+            --glow: rgba(139, 108, 255, 0.6);
+            --text-light: #ffffff;
+            --text-dim: rgba(255,255,255,0.7);
+            --panel-border: rgba(255,255,255,0.04);
+        }
+
+        /* ========= BODY ========= */
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #8b6cff, #0b0f1f 55%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            color: var(--text-light);
+            position: relative;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* ========= PANELS (glassmorphism) ========= */
+        .panel-base {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        /* ========= QUIZ STYLES ========= */
+.quiz-question {
+    background: rgba(0,0,0,0.3);
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid var(--accent);
+}
+.quiz-question p { margin-bottom: 10px; font-weight: 500; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+
+.quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.quiz-option:hover { background: rgba(139,108,255,0.1); }
+.quiz-option input[type="radio"] { accent-color: var(--accent); }
+
+.quiz-answer-btn {
+    padding: 7px 14px;
+    background: linear-gradient(135deg, #232a72, #161c4a);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.25s;
+}
+.quiz-answer-btn:hover { transform: translateY(-2px); box-shadow: 0 0 18px var(--glow); background: linear-gradient(135deg, #2c3590, #1d2460); }
+
+/* ── Show Answer button variant ── */
+.show-ans-btn {
+    background: linear-gradient(135deg, rgba(139,108,255,0.25), rgba(108,124,255,0.15));
+    border: 1px solid rgba(139,108,255,0.45);
+    color: #c4b0ff;
+}
+.show-ans-btn:hover {
+    background: linear-gradient(135deg, rgba(139,108,255,0.45), rgba(108,124,255,0.3));
+    box-shadow: 0 0 18px rgba(139,108,255,0.5);
+    border-color: rgba(139,108,255,0.7);
+}
+
+/* Fade-in for revealed answers */
+@keyframes fadeInAnswer {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.answer-feedback {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+.correct   { background: rgba(0,255,0,0.1);  color: #4ade80; }
+.incorrect { background: rgba(255,0,0,0.1);  color: #f87171; }
+
+/* Per-question listen button */
+.quiz-listen-btn {
+    background: rgba(139,108,255,0.18);
+    border: 1px solid rgba(139,108,255,0.35);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #c4b0ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    padding: 0;
+    margin-left: 4px;
+}
+.quiz-listen-btn:hover {
+    background: rgba(139,108,255,0.4);
+    box-shadow: 0 0 12px rgba(139,108,255,0.5);
+    transform: scale(1.15);
+}
+
+        /* ========= HEADER ========= */
+        .header {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            color: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--panel-border);
+        }
+
+        .nav-link:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-badge.connected {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .status-badge.disconnected {
+            background: #f72585;
+            color: white;
+        }
+
+        .status-badge.loading {
+            background: #fdcb6e;
+            color: white;
+        }
+
+        /* ========= STATS GRID ========= */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* ========= MAIN GRID - 3 COLUMN ========= */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        /* ========= CARDS ========= */
+        .card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 20px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 40px 110px rgba(139,108,255,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(139,108,255,0.2);
+        }
+
+        .card-header h2 {
+            font-size: 1.2rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .card-header .icon {
+            font-size: 1.5rem;
+        }
+
+        /* ========= UPLOAD AREA ========= */
+        .upload-area {
+            border: 3px dashed var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(139,108,255,0.05);
+            margin-bottom: 15px;
+        }
+
+        .upload-area:hover {
+            background: rgba(139,108,255,0.15);
+            border-color: var(--accent-soft);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        /* ========= URL INPUT ========= */
+        .url-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .url-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .url-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--glow);
+        }
+
+        .url-group input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ========= BUTTONS ========= */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--glow);
+            background: linear-gradient(135deg, #2c3590, #1d2460);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #1b2150, #121638);
+        }
+
+        .btn.warning {
+            background: #f72585;
+        }
+
+        .btn.small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ========= MICROPHONE ========= */
+        .mic-container {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent), var(--accent-soft));
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 70px var(--glow);
+            margin-bottom: 10px;
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-btn.active {
+            background: radial-gradient(circle, #f72585, #b5179e);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(247, 37, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+
+        /* ========= COMMAND BOX ========= */
+        .command-box {
+            background: linear-gradient(135deg, #1b2150, #121638);
+            border-radius: 20px;
+            padding: 15px;
+            min-height: 80px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border-left: 4px solid var(--accent);
+            white-space: pre-wrap;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        /* ========= QUICK COMMANDS ========= */
+        .quick-commands {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        /* ========= SECTIONS LIST ========= */
+        .sections-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .section-item {
+            padding: 12px;
+            background: linear-gradient(135deg, #1b2150, #121638);
+            border-radius: 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid var(--accent);
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .section-item:hover {
+            transform: translateX(5px);
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .section-count {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-left: 10px;
+        }
+
+        /* ========= DOCUMENT VIEWER ========= */
+        .document-viewer {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 25px;
+            height: 700px;
+            overflow-y: auto;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            scroll-behavior: smooth;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .document-viewer h1 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: white;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 15px;
+        }
+
+        .document-viewer h2 {
+            font-size: 1.8rem;
+            margin: 25px 0 15px;
+            color: var(--accent-soft);
+        }
+
+        .document-viewer h3 {
+            font-size: 1.5rem;
+            margin: 20px 0 10px;
+            color: var(--accent);
+        }
+
+        .document-viewer p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-align: justify;
+        }
+
+        /* ========= VIEWER TOOLBAR ========= */
+        .viewer-toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: var(--panel-soft);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .viewer-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .viewer-controls input {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 5px 10px;
+            color: white;
+        }
+
+        .viewer-controls input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .viewer-info {
+            display: flex;
+            gap: 15px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* ========= AUDIO CONTROLS ========= */
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .audio-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 25px;
+            border: none;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        .audio-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ========= SPEED CONTROL ========= */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--panel-soft);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .speed-control input {
+            flex: 1;
+            height: 5px;
+            border-radius: 3px;
+            background: var(--accent);
+        }
+
+        /* ========= NOTES & BOOKMARKS ========= */
+        .items-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .items-list li {
+            padding: 10px;
+            background: linear-gradient(135deg, #1b2150, #121638);
+            border-radius: 14px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--accent);
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .items-list li .timestamp {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            margin-top: 5px;
+        }
+
+        /* ========= PROGRESS BAR ========= */
+        .progress-bar {
+            height: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+            transition: width 0.3s;
+        }
+
+        /* ========= VOICE STATUS ========= */
+        .voice-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            color: var(--accent);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            border: 1px solid var(--glow);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        /* ========= FEATURE PANELS ========= */
+        .feature-panels {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .feature-panel {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 20px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(139,108,255,0.2);
+        }
+
+        .panel-header h3 {
+            font-size: 1.1rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .panel-content {
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: linear-gradient(135deg, #1b2150, #121638);
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+
+        /* ========= QUIZ STYLES ========= */
+        .quiz-question {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .quiz-question p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            color: var(--text-dim);
+        }
+
+        .quiz-option input[type="radio"] {
+            accent-color: var(--accent);
+        }
+
+        .quiz-answer-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .answer-feedback {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .correct {
+            background: rgba(0,255,0,0.1);
+            color: #4ade80;
+        }
+
+        .incorrect {
+            background: rgba(255,0,0,0.1);
+            color: #f87171;
+        }
+
+        /* ========= TOAST NOTIFICATIONS ========= */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideUp 0.3s ease;
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .toast.success {
+            background: var(--accent);
+        }
+
+        .toast.error {
+            background: #f72585;
+        }
+
+        .toast.info {
+            background: var(--accent-soft);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* ========= HIGHLIGHT ========= */
+        .highlight {
+            background: rgba(139,108,255,0.3);
+            padding: 2px;
+            border-radius: 4px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* ========= SCROLLBARS ========= */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-soft);
+        }
+
+        /* ========= CUTE ROBOT ASSISTANT (from design) ========= */
+        .robot-assistant {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .robot-assistant:hover {
+            transform: translateY(-10px) scale(1.05);
+            filter: drop-shadow(0 30px 40px var(--glow));
+            animation: float 1.5s ease-in-out infinite;
+        }
+
+        /* Head */
+        .head {
+            width: 120px;
+            height: 85px;
+            background: #f5f7ff;
+            border-radius: 30px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                inset 0 -6px 10px rgba(0,0,0,0.08),
+                0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Face Screen */
+        .face {
+            width: 95px;
+            height: 60px;
+            background: linear-gradient(145deg, #050409, #0e0b1d);
+            border-radius: 18px;
+            position: relative;
+            box-shadow: inset 0 4px 8px rgba(255,255,255,0.05);
+        }
+
+        /* Eyes */
+        .eye {
+            position: absolute;
+            top: 24px;
+            width: 16px;
+            height: 8px;
+            border-radius: 0 0 12px 12px;
+            border-bottom: 3px solid #8b6cff;
+            filter: drop-shadow(0 0 5px #5ecbff);
+        }
+
+        .eye.left {
+            left: 24px;
+        }
+
+        .eye.right {
+            right: 24px;
+        }
+
+        /* Body */
+        .body {
+            width: 75px;
+            height: 95px;
+            background: #bbb0e4;
+            border-radius: 40px;
+            margin: -6px auto 0;
+            box-shadow: 
+                inset 0 -6px 10px rgba(0,0,0,0.08),
+                0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Arms */
+        .arm {
+            position: absolute;
+            top: 95px;
+            width: 25px;
+            height: 45px;
+            background: #bbb0e4;
+            border-radius: 20px;
+            box-shadow: inset 0 -4px 8px rgba(0,0,0,0.08);
+        }
+
+        .arm.left {
+            left: 5px;
+            transform: rotate(-15deg);
+        }
+
+        .arm.right {
+            right: 5px;
+            transform: rotate(15deg);
+        }
+
+        /* Shadow */
+        .shadow {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 12px;
+            background: radial-gradient(ellipse at center,
+                rgba(0,0,0,0.25),
+                transparent 70%);
+            filter: blur(5px);
+        }
+
+        /* Speech bubble */
+        .robot-speech {
+            position: absolute;
+            bottom: 100%;
+            left: 40px;
+            margin-bottom: 15px;
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            padding: 8px 16px;
+            border-radius: 30px 30px 30px 5px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid var(--accent);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            border: 1px solid var(--glow);
+        }
+
+        .robot-assistant:hover .robot-speech {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .robot-speech::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: var(--panel) transparent transparent transparent;
+            backdrop-filter: blur(18px);
+        }
+
+        /* ========= RESPONSIVE ========= */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 300px 1fr 300px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .feature-panels {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .robot-assistant {
+                bottom: 20px;
+                left: 20px;
+            }
+
+            .robot {
+                width: 100px;
+                height: 140px;
+            }
+
+            .head {
+                width: 85px;
+                height: 60px;
+                border-radius: 22px;
+            }
+
+            .face {
+                width: 68px;
+                height: 43px;
+                border-radius: 14px;
+            }
+
+            .eye {
+                top: 17px;
+                width: 12px;
+                height: 6px;
+                border-bottom-width: 2px;
+            }
+
+            .eye.left { left: 17px; }
+            .eye.right { right: 17px; }
+
+            .body {
+                width: 55px;
+                height: 68px;
+                border-radius: 28px;
+            }
+
+            .arm {
+                top: 68px;
+                width: 18px;
+                height: 32px;
+            }
+
+            .robot-speech {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+                left: 20px;
+            }
+        }
+
+        /* ========= ADDITIONAL FIXES ========= */
+        #fileInfo p, #docDetails {
+            color: var(--text-dim);
+        }
+
+        #quickNoteInput {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 8px;
+            color: white;
+        }
+
+        #quickNoteInput:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        #docInfo p {
+            color: var(--text-dim);
+        }
+
+        .speed-control span {
+            color: var(--text-dim);
+        }
+
+        /* Voice note specific styles */
+        .voice-note-timer {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .recording-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #f72585;
+            border-radius: 50%;
+            animation: pulse-recording 1.5s infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes pulse-recording {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Voice interim results */
+        #interimResults {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 20px var(--glow);
+            z-index: 1001;
+            display: none;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span style="font-size: 2.5rem;">🎤</span>
+                <h1>VoiceNav AI</h1>
+                <span class="badge">DOCUMENT ASSISTANT</span>
+            </div>
+            <div class="nav-links">
+                <a href="/history.html" class="nav-link">📊 History</a>
+                <button class="nav-link" onclick="logout()" style="background: rgba(247, 37, 133, 0.2); border: none; cursor: pointer;">🚪 Logout</button>
+                <span id="status" class="status-badge loading">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="docCount">0</div>
+                <div class="stat-label">Documents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sectionCount">0</div>
+                <div class="stat-label">Sections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="noteCount">0</div>
+                <div class="stat-label">Notes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="bookmarkCount">0</div>
+                <div class="stat-label">Bookmarks</div>
+            </div>
+        </div>
+
+        <!-- Main Grid - 3 Columns -->
+        <div class="main-grid">
+            <!-- LEFT COLUMN: Upload & Voice -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">📤</span>
+                    <h2>Upload Document</h2>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Click to select file</div>
+                    <div class="upload-hint">PDF, DOCX, TXT (Max 50MB)</div>
+                    <input type="file" id="fileInput" style="display: none;" accept=".pdf,.docx,.txt">
+                </div>
+                
+                <div class="url-group">
+                    <input type="url" id="urlInput" placeholder="Enter document URL...">
+                    <button class="btn secondary" id="urlBtn">Load</button>
+                </div>
+                
+                <div id="fileInfo" style="margin-bottom: 15px;"></div>
+
+                <div class="card-header" style="margin-top: 15px;">
+                    <span class="icon">🎤</span>
+                    <h2>Voice Commands</h2>
+                </div>
+                
+                <div class="mic-container">
+                    <button class="mic-btn" id="micBtn">🎤</button>
+                    <div id="recordingStatus" style="color: var(--accent); font-weight: bold;"></div>
+                </div>
+                
+                <div class="command-box" id="commandBox">
+                    👆 Click microphone and speak naturally
+                </div>
+
+                <div class="quick-commands">
+                    <button class="btn small secondary" onclick="sendQuickCommand('help')">❓ Help</button>
+                    <button class="btn small secondary" onclick="sendQuickCommand('summarize')">📝 Summarize</button>
+                    <button class="btn small secondary" onclick="sendQuickCommand('quiz')">📋 Quiz</button>
+                    <button class="btn small secondary" onclick="sendQuickCommand('show notes')">📌 Notes</button>
+                    <button class="btn small secondary" onclick="sendQuickCommand('export')">📥 Export</button>
+                </div>
+
+                <!-- Document Info -->
+                <div id="docInfo" style="margin-top: 15px; display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="docProgress" style="width: 100%;"></div>
+                    </div>
+                    <p style="font-size: 0.9rem;" id="docDetails"></p>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN: Document Viewer -->
+            <div class="card" style="padding: 15px;">
+                <div class="card-header">
+                    <span class="icon">📖</span>
+                    <h2>Document Viewer</h2>
+                </div>
+
+                <!-- Viewer Toolbar -->
+                <div class="viewer-toolbar">
+                    <button class="btn small" id="fullscreenBtn" title="Fullscreen">⛶</button>
+                    <button class="btn small" id="printBtn" title="Print">🖨️</button>
+                    <button class="btn small" id="downloadTxtBtn" title="Download as TXT">📥</button>
+                    
+                    <div class="viewer-controls">
+                        <span>Find:</span>
+                        <input type="text" id="searchInput" placeholder="Search..." style="padding: 5px; width: 120px;">
+                        <button class="btn small" id="searchBtn">🔍</button>
+                    </div>
+                    
+                    <div class="viewer-info">
+                        <span id="wordCount">0 words</span>
+                        <span id="charCount">0 chars</span>
+                    </div>
+                </div>
+
+                <!-- The Document Viewer -->
+                <div class="document-viewer" id="documentViewer">
+                    <div style="text-align: center; color: rgba(255,255,255,0.3); padding: 100px 20px;">
+                        <span style="font-size: 4rem;">📄</span>
+                        <h3 style="margin-top: 20px;">No Document Loaded</h3>
+                        <p style="margin-top: 10px;">Upload a file or enter a URL to view your document</p>
+                    </div>
+                </div>
+
+                <!-- Audio Controls -->
+                <div class="audio-controls" style="margin-top: 15px;">
+                    <button class="audio-btn" id="playBtn" disabled>▶️</button>
+                    <button class="audio-btn" id="pauseBtn" disabled>⏸️</button>
+                    <button class="audio-btn" id="stopBtn" disabled>⏹️</button>
+                    <button class="audio-btn" id="repeatBtn" disabled>🔄</button>
+                    <button class="audio-btn" id="playOverviewBtn" disabled>📢 Overview</button>
+                </div>
+
+                <div class="speed-control">
+                    <span>Speed: <span id="speedValue">1.0x</span></span>
+                    <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Sections & Navigation -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">📑</span>
+                    <h2>Sections <span id="sectionCount2" class="section-count"></span></h2>
+                </div>
+                <div class="sections-container" id="sectionsList">
+                    <p style="color: rgba(255,255,255,0.3); text-align: center;">No sections yet</p>
+                </div>
+
+                <!-- Quick Note Input with voice note functionality -->
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                        <span>📝 Quick Note</span>
+                        <span id="voiceNoteStatus" style="font-size: 0.8rem; color: var(--accent); display: none;">
+                            <span class="recording-indicator"></span> Recording...
+                        </span>
+                    </h4>
+                    
+                    <!-- Text note input -->
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <input type="text" id="quickNoteInput" placeholder="Type a note..." style="flex: 1; padding: 8px; border-radius: 12px;">
+                        <button class="btn small" onclick="addQuickNote()">Add</button>
+                    </div>
+                    
+                    <!-- Voice note controls -->
+                    <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn small" id="startVoiceNoteBtn" onclick="startVoiceNote()" style="background: linear-gradient(135deg, #8b6cff, #6c7cff);">
+                            🎤 Start Voice Note
+                        </button>
+                        <button class="btn small" id="stopVoiceNoteBtn" onclick="stopVoiceNote()" style="background: #f72585; display: none;">
+                            ⏹️ Stop Recording
+                        </button>
+                        <button class="btn small" id="cancelVoiceNoteBtn" onclick="cancelVoiceNote()" style="background: #ff6b6b; display: none;">
+                            ❌ Cancel
+                        </button>
+                        <span id="voiceNoteTimer" class="voice-note-timer" style="display: none;">00:00</span>
+                    </div>
+                    
+                    <!-- Voice note preview -->
+                    <div id="voiceNotePreview" style="margin-top: 10px; padding: 10px; background: rgba(139,108,255,0.1); border-radius: 12px; display: none;">
+                        <p style="margin-bottom: 5px; color: var(--accent);">🎤 Recent voice note:</p>
+                        <p id="voiceNoteText" style="font-size: 0.9rem;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Panels (Summary & Quiz) -->
+        <div class="feature-panels">
+            <div class="feature-panel" id="summaryPanel">
+                <div class="panel-header">
+                    <span class="icon">📝</span>
+                    <h3>Document Summary</h3>
+                </div>
+                <div class="panel-content" id="summaryContent">
+                    <p style="color: rgba(255,255,255,0.3); text-align: center;">Generate a summary using voice command or button below</p>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn small" onclick="speakSummary()">🔊 Listen</button>
+                    <button class="btn small" onclick="copySummary()">📋 Copy</button>
+                    <button class="btn small" onclick="toggleSummaryFullscreen()">⛶</button>
+                    <button class="btn small" onclick="printSummary()">🖨️</button>
+                    <button class="btn small" onclick="downloadSummary()">📥</button>
+                </div>
+            </div>
+
+            <!-- QUIZ PANEL -->
+<div class="feature-panel" id="quizPanel">
+    <div class="panel-header"><span class="icon">📋</span><h3>Quiz</h3></div>
+    <div class="panel-content" id="quizContent">
+        <p style="color:rgba(255,255,255,0.3);text-align:center;">Generate a quiz using voice command or button below</p>
+    </div>
+    <div class="panel-actions">
+        <button class="btn small" onclick="generateQuiz()">🎲 New Quiz</button>
+        <button class="btn small" onclick="listenQuiz()" id="listenQuizBtn">🔊 Listen</button>
+        <button class="btn small" onclick="stopQuizListen()" id="stopQuizBtn" style="display:none;">⏹ Stop</button>
+        <button class="btn small" onclick="toggleQuizFullscreen()">⛶</button>
+        <button class="btn small" onclick="printQuiz()">🖨️</button>
+        <button class="btn small" onclick="downloadQuiz()">📥</button>
+    </div>
+</div>
+        </div>
+
+        
+    </div>
+
+    <!-- Cute Robot Assistant -->
+    <div class="robot-assistant" onclick="window.location.href='/chat.html'">
+        <div class="robot-speech">I can help you! 💬</div>
+        <div class="robot">
+            <div class="head">
+                <div class="face">
+                    <span class="eye left"></span>
+                    <span class="eye right"></span>
+                </div>
+            </div>
+            <div class="body"></div>
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+            <div class="shadow"></div>
+        </div>
+    </div>
+
+    <!-- Voice Status Indicator -->
+    <div class="voice-status" id="voiceStatus">🎤 Microphone off</div>
+
+    <!-- Interim Results Display -->
+    <div id="interimResults"></div>
+
+    <script>
+        const DocSession = {
+            KEY: 'voicenav_active_doc',
+            save(docData) { try { sessionStorage.setItem(this.KEY, JSON.stringify(docData)); } catch(e) {} },
+            load() { try { const r = sessionStorage.getItem(this.KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } },
+            clear() { sessionStorage.removeItem(this.KEY); }
+        };
+
+        // Configuration
+        const API_BASE = 'http://localhost:5000/api';
+        let currentDocId = null;
+        let currentAudio = null;
+        let recognition = null;
+        let isRecording = false;
+        let currentSpeed = 1.0;
+        let documentText = '';
+        let documentSections = {};
+        let documentOverview = '';
+        let sectionsDict = {};
+        
+        // Voice note recording variables
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingStartTime = null;
+        let recordingTimer = null;
+        let isVoiceNoteRecording = false;
+
+        // Quiz variables
+        let _quizData = [];
+
+        // DOM Elements
+        const statusEl = document.getElementById('status');
+        const micBtn = document.getElementById('micBtn');
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const urlInput = document.getElementById('urlInput');
+        const urlBtn = document.getElementById('urlBtn');
+        const commandBox = document.getElementById('commandBox');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const documentViewer = document.getElementById('documentViewer');
+        const sectionsList = document.getElementById('sectionsList');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const playOverviewBtn = document.getElementById('playOverviewBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const notesList = document.getElementById('notesList');
+        const bookmarksList = document.getElementById('bookmarksList');
+        const docCount = document.getElementById('docCount');
+        const sectionCount = document.getElementById('sectionCount');
+        const sectionCount2 = document.getElementById('sectionCount2');
+        const noteCount = document.getElementById('noteCount');
+        const noteCount2 = document.getElementById('noteCount2');
+        const bookmarkCount = document.getElementById('bookmarkCount');
+        const bookmarkCount2 = document.getElementById('bookmarkCount2');
+        const wordCountEl = document.getElementById('wordCount');
+        const charCountEl = document.getElementById('charCount');
+        const docInfo = document.getElementById('docInfo');
+        const docDetails = document.getElementById('docDetails');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const printBtn = document.getElementById('printBtn');
+        const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+        const summaryContent = document.getElementById('summaryContent');
+        const quizContent = document.getElementById('quizContent');
+        
+        // Voice note elements
+        const startVoiceNoteBtn = document.getElementById('startVoiceNoteBtn');
+        const stopVoiceNoteBtn = document.getElementById('stopVoiceNoteBtn');
+        const cancelVoiceNoteBtn = document.getElementById('cancelVoiceNoteBtn');
+        const voiceNoteStatus = document.getElementById('voiceNoteStatus');
+        const voiceNoteTimer = document.getElementById('voiceNoteTimer');
+        const voiceNotePreview = document.getElementById('voiceNotePreview');
+        const voiceNoteText = document.getElementById('voiceNoteText');
+        
+        // Quiz elements
+        const listenQuizBtn = document.getElementById('listenQuizBtn');
+        const stopQuizBtn = document.getElementById('stopQuizBtn');
+
+        // ========= HELPER FUNCTIONS =========
+        function escHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatType(t) {
+            const map = {
+                multiple_choice: 'MCQ',
+                fill_blank: 'Fill Blank',
+                true_false: 'True/False',
+                short_answer: 'Short Answer'
+            };
+            return map[t] || t;
+        }
+
+        function _cleanForSpeech(raw) {
+            return String(raw || '')
+                .replace(/_{2,}/g, 'dash')
+                .replace(/_/g, 'dash')
+                .replace(/["]/g, '')
+                .replace(/\n+/g, ' ')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
+        }
+
+        function _fuzzyMatch(given, correct) {
+            const g = given.trim().toLowerCase();
+            const c = correct.trim().toLowerCase();
+            return g === c || c.includes(g) || g.includes(c);
+        }
+
+        // ========= CHECK LOGIN SESSION =========
+        function checkAuth() {
+            const currentUser = sessionStorage.getItem('voicenav_current_user');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        // Call this at the start
+        const currentUser = checkAuth();
+        if (currentUser) {
+            console.log('Logged in as:', currentUser.fullName);
+        }
+
+        // ===== SUMMARY PANEL FUNCTIONS =====
+        function speakSummary() {
+            const summaryText = document.getElementById('summaryContent').innerText;
+            if (summaryText && !summaryText.includes('Generate a summary')) {
+                speakText(summaryText);
+            } else {
+                showToast('No summary available yet. Generate one first!', 'info');
+            }
+        }
+
+        function copySummary() {
+            const summaryText = document.getElementById('summaryContent').innerText;
+            if (summaryText && !summaryText.includes('Generate a summary')) {
+                navigator.clipboard.writeText(summaryText).then(() => {
+                    showToast('Summary copied to clipboard!', 'success');
+                }).catch(() => {
+                    showToast('Failed to copy summary', 'error');
+                });
+            } else {
+                showToast('No summary available to copy', 'info');
+            }
+        }
+
+        function toggleSummaryFullscreen() {
+            const summaryContent = document.getElementById('summaryContent');
+            if (!document.fullscreenElement) {
+                summaryContent.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function printSummary() {
+            const summaryText = document.getElementById('summaryContent').innerText;
+            if (summaryText && !summaryText.includes('Generate a summary')) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Document Summary</title>
+                            <style>
+                                body { 
+                                    font-family: Georgia, serif; 
+                                    line-height: 1.6; 
+                                    padding: 40px; 
+                                    max-width: 800px; 
+                                    margin: 0 auto;
+                                    background: #0b0f1f;
+                                    color: white;
+                                }
+                                h1 { color: #8b6cff; }
+                                .summary { 
+                                    background: rgba(139,108,255,0.1);
+                                    padding: 20px;
+                                    border-radius: 16px;
+                                    border-left: 4px solid #8b6cff;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Document Summary</h1>
+                            <div class="summary">${summaryText.replace(/\n/g, '<br>')}</div>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                showToast('No summary available to print', 'info');
+            }
+        }
+
+        function downloadSummary() {
+            const summaryText = document.getElementById('summaryContent').innerText;
+            if (summaryText && !summaryText.includes('Generate a summary')) {
+                const blob = new Blob([summaryText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `summary_${new Date().toISOString().slice(0,10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('Summary downloaded!', 'success');
+            } else {
+                showToast('No summary available to download', 'info');
+            }
+        }
+
+        // ===== QUIZ PANEL FUNCTIONS =====
+        function displayQuiz(quiz) {
+            if (!Array.isArray(quiz) || quiz.length === 0) {
+                quizContent.innerHTML = '<p style="color:rgba(255,255,255,0.4);text-align:center;">No questions generated.</p>';
+                return;
+            }
+
+            _quizData = quiz; // store for later use
+
+            let html = `<div style="margin-bottom:12px;font-size:0.85rem;color:rgba(255,255,255,0.5);">
+                ${quiz.length} question${quiz.length > 1 ? 's' : ''} — type/select your answer, then click ✔ Check or 👁 Show Answer
+            </div>`;
+
+            quiz.forEach((q, index) => {
+                const qType = q.type || 'unknown';
+                const qText = escHtml(q.question || '');
+
+                html += `<div class="quiz-question" id="qq${index}" data-index="${index}" data-type="${qType}">
+                    <p style="margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+                        <span style="background:rgba(139,108,255,0.25);padding:2px 8px;border-radius:8px;font-size:0.78rem;color:#c4b0ff;white-space:nowrap;">${formatType(qType)}</span>
+                        <span style="flex:1;"><strong>Q${index + 1}:</strong> ${qText}</span>
+                        <button class="quiz-listen-btn" data-action="listen" data-index="${index}" title="Listen to this question">🔊</button>
+                        <button class="quiz-listen-btn" data-action="repeat" data-index="${index}" title="Repeat this question">🔁</button>
+                    </p>`;
+
+                // ----- multiple choice -----
+                if (qType === 'multiple_choice' && q.options) {
+                    html += `<div class="quiz-options">`;
+                    q.options.forEach((opt) => {
+                        html += `<label class="quiz-option">
+                            <input type="radio" name="q${index}" value="${escHtml(opt)}">
+                            <span>${escHtml(opt)}</span>
+                        </label>`;
+                    });
+                    html += `</div>
+                    <div style="display:flex;gap:8px;margin-top:10px;">
+                        <button class="quiz-answer-btn" data-action="check" data-index="${index}">✔ Check</button>
+                        <button class="quiz-answer-btn show-ans-btn" data-action="reveal" data-index="${index}">👁 Show Answer</button>
+                    </div>`;
+                }
+                // ----- fill in the blank -----
+                else if (qType === 'fill_blank') {
+                    html += `
+                    <div style="display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap;">
+                        <input type="text" id="fill_${index}" data-index="${index}" placeholder="Type your answer…"
+                            style="flex:1;min-width:140px;padding:8px 12px;border-radius:12px;border:2px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.35);color:white;font-size:0.95rem;outline:none;"
+                            data-action="enter-check">
+                        ${q.hint ? `<span style="color:rgba(255,255,255,0.4);font-size:0.82rem;">💡 ${escHtml(q.hint)}</span>` : ''}
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <button class="quiz-answer-btn" data-action="check" data-index="${index}">✔ Check</button>
+                        <button class="quiz-answer-btn show-ans-btn" data-action="reveal" data-index="${index}">👁 Show Answer</button>
+                    </div>`;
+                }
+                // ----- true/false -----
+                else if (qType === 'true_false') {
+                    ['True','False'].forEach(opt => {
+                        html += `<label class="quiz-option">
+                            <input type="radio" name="q${index}" value="${opt}">
+                            <span>${opt}</span>
+                        </label>`;
+                    });
+                    html += `
+                    <div style="display:flex;gap:8px;margin-top:10px;">
+                        <button class="quiz-answer-btn" data-action="check" data-index="${index}">✔ Check</button>
+                        <button class="quiz-answer-btn show-ans-btn" data-action="reveal" data-index="${index}">👁 Show Answer</button>
+                    </div>`;
+                }
+                // ----- short answer -----
+                else if (qType === 'short_answer') {
+                    html += `
+                    <div style="display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap;">
+                        <input type="text" id="short_${index}" data-index="${index}" placeholder="Type your answer…"
+                            style="flex:1;min-width:140px;padding:8px 12px;border-radius:12px;border:2px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.35);color:white;font-size:0.95rem;outline:none;"
+                            data-action="enter-check">
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <button class="quiz-answer-btn" data-action="check" data-index="${index}">✔ Check</button>
+                        <button class="quiz-answer-btn show-ans-btn" data-action="reveal" data-index="${index}">👁 Show Answer</button>
+                    </div>`;
+                }
+                // ----- fallback (just show answer) -----
+                else if (q.answer) {
+                    html += `<button class="quiz-answer-btn show-ans-btn" data-action="reveal" data-index="${index}">👁 Show Answer</button>`;
+                }
+
+                html += `<div id="feedback${index}" class="answer-feedback" style="display:none;"></div>
+                </div>`;
+            });
+
+            quizContent.innerHTML = html;
+
+            // Attach delegated event listeners
+            if (quizContent._quizClick) quizContent.removeEventListener('click', quizContent._quizClick);
+            if (quizContent._quizKeydown) quizContent.removeEventListener('keydown', quizContent._quizKeydown);
+            quizContent._quizClick = _quizClickHandler;
+            quizContent._quizKeydown = _quizKeyHandler;
+            quizContent.addEventListener('click', _quizClickHandler);
+            quizContent.addEventListener('keydown', _quizKeyHandler);
+        }
+
+        // ---------- Event handlers ----------
+        function _quizClickHandler(e) {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const index = parseInt(btn.dataset.index, 10);
+            if (isNaN(index)) return;
+
+            if (action === 'reveal') _doReveal(index);
+            if (action === 'check') _doCheck(index);
+            if (action === 'listen') _doListenQuestion(index);
+            if (action === 'repeat') _doRepeatQuestion(index);
+        }
+
+        function _quizKeyHandler(e) {
+            if (e.key !== 'Enter') return;
+            const inp = e.target.closest('[data-action="enter-check"]');
+            if (!inp) return;
+            const index = parseInt(inp.dataset.index, 10);
+            if (!isNaN(index)) _doCheck(index);
+        }
+
+        // ---------- Check answer ----------
+        function _doCheck(index) {
+            const q = _quizData[index];
+            const fb = document.getElementById(`feedback${index}`);
+            if (!q || !fb) return;
+
+            const qType = q.type || '';
+            const answer = q.answer || '';
+            const explanation = q.explanation || '';
+
+            let given = '';
+            let ok = false;
+
+            if (qType === 'fill_blank') {
+                const inp = document.getElementById(`fill_${index}`);
+                given = inp.value.trim();
+                if (!given) { _showWarning(fb, 'Please type an answer first.'); return; }
+                ok = _fuzzyMatch(given, answer);
+                inp.style.borderColor = ok ? '#4ade80' : '#f87171';
+            } else if (qType === 'short_answer') {
+                const inp = document.getElementById(`short_${index}`);
+                given = inp.value.trim();
+                if (!given) { _showWarning(fb, 'Please type an answer first.'); return; }
+                ok = _fuzzyMatch(given, answer);
+                inp.style.borderColor = ok ? '#4ade80' : '#f87171';
+            } else if (qType === 'multiple_choice' || qType === 'true_false') {
+                const sel = document.querySelector(`input[name="q${index}"]:checked`);
+                if (!sel) { _showWarning(fb, 'Please select an option first.'); return; }
+                given = sel.value;
+                ok = (given === answer);
+                // highlight selected option
+                document.querySelectorAll(`input[name="q${index}"]`).forEach(r => {
+                    const lbl = r.closest('label');
+                    if (!lbl) return;
+                    if (r.value === answer) lbl.style.background = ok ? 'rgba(74,222,128,0.18)' : 'rgba(139,108,255,0.2)';
+                    if (!ok && r.checked && r.value !== answer) lbl.style.background = 'rgba(247,37,133,0.15)';
+                });
+            }
+
+            const expl = explanation ? `<br><span style="color:rgba(255,255,255,0.55);font-size:0.83rem;">💡 ${escHtml(explanation)}</span>` : '';
+
+            if (ok) {
+                fb.innerHTML = `✅ <strong>Correct!</strong> The answer is <em>${escHtml(answer)}</em>${expl}`;
+                fb.className = 'answer-feedback correct';
+            } else {
+                fb.innerHTML = `❌ <strong>Not quite.</strong> The correct answer is <em>${escHtml(answer)}</em>${expl}`;
+                fb.className = 'answer-feedback incorrect';
+            }
+            fb.style.display = 'block';
+            speakText(ok ? 'Correct!' : `The correct answer is ${answer}`);
+        }
+
+        function _showWarning(fb, msg) {
+            fb.innerHTML = `⚠️ ${msg}`;
+            fb.className = 'answer-feedback incorrect';
+            fb.style.display = 'block';
+        }
+
+        // ---------- Reveal answer ----------
+        function _doReveal(index) {
+            const q = _quizData[index];
+            const fb = document.getElementById(`feedback${index}`);
+            if (!q || !fb) return;
+
+            const qType = q.type || '';
+            const answer = q.answer || '';
+            const explanation = q.explanation || '';
+
+            let msg = '';
+
+            if (qType === 'fill_blank' || qType === 'short_answer') {
+                const inputId = qType === 'fill_blank' ? `fill_${index}` : `short_${index}`;
+                const inp = document.getElementById(inputId);
+                if (inp) {
+                    inp.value = answer;
+                    inp.style.borderColor = 'rgba(139,108,255,0.8)';
+                    inp.style.color = '#c4b0ff';
+                }
+                msg = `<span style="color:#a78bfa;">📝 Answer: </span><strong style="color:#c4b0ff;">${escHtml(answer)}</strong>`;
+            } else if (qType === 'multiple_choice' || qType === 'true_false') {
+                document.querySelectorAll(`input[name="q${index}"]`).forEach(radio => {
+                    if (radio.value === answer) {
+                        radio.checked = true;
+                        const lbl = radio.closest('label');
+                        if (lbl) lbl.style.background = 'rgba(139,108,255,0.25)';
+                    }
+                });
+                msg = `<span style="color:#a78bfa;">✅ Correct answer: </span><strong style="color:#c4b0ff;">${escHtml(answer)}</strong>`;
+            } else {
+                msg = `<span style="color:#a78bfa;">Answer: </span><strong style="color:#c4b0ff;">${escHtml(answer)}</strong>`;
+            }
+
+            if (explanation) {
+                msg += `<br><span style="color:rgba(255,255,255,0.6);font-size:0.85rem;display:block;">💡 ${escHtml(explanation)}</span>`;
+            }
+
+            fb.innerHTML = msg;
+            fb.style.cssText = 'display:block;background:rgba(139,108,255,0.13);border:1px solid rgba(139,108,255,0.4);border-radius:10px;padding:10px 14px;margin-top:10px;animation:fadeInAnswer 0.3s ease';
+            speakText(`The answer is: ${answer}`);
+        }
+
+        // ---------- Listen to a single question ----------
+        function _doListenQuestion(index) {
+            const q = _quizData[index];
+            if (!q) return;
+
+            let text = `Question ${index + 1}. ${_cleanForSpeech(q.question)}. `;
+            if (q.type === 'multiple_choice' && q.options) {
+                text += 'Options: ';
+                q.options.forEach((opt, i) => {
+                    text += `${String.fromCharCode(65 + i)}: ${_cleanForSpeech(opt)}. `;
+                });
+            } else if (q.type === 'true_false') {
+                text += 'Answer True or False. ';
+            } else if (q.type === 'fill_blank' && q.hint) {
+                text += _cleanForSpeech(q.hint) + '. ';
+            }
+
+            const btn = document.querySelector(`#qq${index} [data-action="listen"]`);
+            if (btn) {
+                btn.textContent = '🔈';
+                btn.style.color = '#a78bfa';
+                btn.style.transform = 'scale(1.2)';
+            }
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = currentSpeed || 1.0;
+            utterance.onend = utterance.onerror = () => {
+                if (btn) {
+                    btn.textContent = '🔊';
+                    btn.style.color = '';
+                    btn.style.transform = '';
+                }
+            };
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function _doRepeatQuestion(index) {
+            window.speechSynthesis.cancel();
+            _doListenQuestion(index);
+        }
+
+        // ---------- Listen to whole quiz ----------
+        function listenQuiz() {
+            if (!_quizData.length) {
+                showToast('No quiz generated yet. Click 🎲 New Quiz first!', 'info');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            let fullText = `Quiz with ${_quizData.length} questions. `;
+            _quizData.forEach((q, i) => {
+                fullText += `Question ${i + 1}. ${_cleanForSpeech(q.question)}. `;
+                if (q.type === 'multiple_choice' && q.options) {
+                    fullText += 'Options: ';
+                    q.options.forEach((opt, j) => {
+                        fullText += `${String.fromCharCode(65 + j)}: ${_cleanForSpeech(opt)}. `;
+                    });
+                } else if (q.type === 'true_false') {
+                    fullText += 'Answer True or False. ';
+                } else if (q.type === 'fill_blank' && q.hint) {
+                    fullText += _cleanForSpeech(q.hint) + '. ';
+                }
+                fullText += '  ';
+            });
+
+            if (listenQuizBtn) listenQuizBtn.style.display = 'none';
+            if (stopQuizBtn) stopQuizBtn.style.display = 'inline-flex';
+
+            const utterance = new SpeechSynthesisUtterance(fullText);
+            utterance.rate = currentSpeed || 1.0;
+            const resetButtons = () => {
+                if (listenQuizBtn) listenQuizBtn.style.display = 'inline-flex';
+                if (stopQuizBtn) stopQuizBtn.style.display = 'none';
+            };
+            utterance.onend = resetButtons;
+            utterance.onerror = resetButtons;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopQuizListen() {
+            window.speechSynthesis.cancel();
+            if (listenQuizBtn) listenQuizBtn.style.display = 'inline-flex';
+            if (stopQuizBtn) stopQuizBtn.style.display = 'none';
+        }
+
+        function generateQuiz() {
+            if (!currentDocId) {
+                showToast('Please upload a document first', 'error');
+                return;
+            }
+            processCommand('quiz');
+        }
+
+        function toggleQuizFullscreen() {
+            const quizContent = document.getElementById('quizContent');
+            if (!document.fullscreenElement) {
+                quizContent.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function printQuiz() {
+            const quizContent = document.getElementById('quizContent');
+            const quizHTML = quizContent.innerHTML;
+            
+            if (!quizHTML.includes('Generate a quiz')) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Document Quiz</title>
+                            <style>
+                                body { 
+                                    font-family: Georgia, serif; 
+                                    line-height: 1.6; 
+                                    padding: 40px; 
+                                    max-width: 800px; 
+                                    margin: 0 auto;
+                                    background: #0b0f1f;
+                                    color: white;
+                                }
+                                h1 { color: #8b6cff; }
+                                .quiz-question { 
+                                    background: rgba(139,108,255,0.1);
+                                    padding: 20px;
+                                    border-radius: 16px;
+                                    margin-bottom: 20px;
+                                    border-left: 4px solid #8b6cff;
+                                }
+                                .quiz-options {
+                                    margin: 15px 0;
+                                }
+                                .quiz-option {
+                                    padding: 8px;
+                                    margin: 5px 0;
+                                    background: rgba(255,255,255,0.05);
+                                    border-radius: 8px;
+                                }
+                                .answer { 
+                                    color: #4ade80;
+                                    font-weight: bold;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Document Quiz</h1>
+                            ${quizHTML}
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                showToast('No quiz available to print. Generate one first!', 'info');
+            }
+        }
+
+        function downloadQuiz() {
+            const quizContent = document.getElementById('quizContent');
+            const quizText = quizContent.innerText;
+            
+            if (!quizText.includes('Generate a quiz')) {
+                const blob = new Blob([quizText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `quiz_${new Date().toISOString().slice(0,10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('Quiz downloaded!', 'success');
+            } else {
+                showToast('No quiz available to download', 'info');
+            }
+        }
+
+        // ===== DOCUMENT RESTORATION FUNCTION =====
+        async function restoreLastDocument() {
+            const saved = DocSession.load();
+            if (saved && saved.document_id) {
+                console.log('Restoring document:', saved.filename);
+                
+                try {
+                    const response = await fetch(`${API_BASE}/documents/${saved.document_id}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            currentDocId = saved.document_id;
+                            sectionsDict = saved.sections_dict || {};
+                            
+                            fileInfo.innerHTML = `
+                                <p style="color: #8b6cff;">✅ Restored: ${saved.filename}</p>
+                                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">📊 ${saved.section_count || 0} sections • ${saved.word_count || 0} words</p>
+                            `;
+                            
+                            sectionCount.textContent = saved.section_count || 0;
+                            sectionCount2.textContent = `(${saved.section_count || 0})`;
+                            
+                            displayDocument({
+                                filename: saved.filename,
+                                text: saved.overview + '\n\n' + (saved.full_text || ''),
+                                sections: sectionsDict,
+                                overview: saved.overview
+                            });
+                            
+                            displaySections(sectionsDict);
+                            
+                            playBtn.disabled = false;
+                            pauseBtn.disabled = false;
+                            stopBtn.disabled = false;
+                            repeatBtn.disabled = false;
+                            playOverviewBtn.disabled = false;
+                            
+                            docInfo.style.display = 'block';
+                            
+                            loadNotes();
+                            loadBookmarks();
+                            
+                            commandBox.innerHTML = '✅ Document restored! Try: "read overview", "summarize", or "quiz"';
+                            
+                            showToast(`📄 Restored: "${saved.filename}"`, 'success');
+                        }
+                    } else {
+                        DocSession.clear();
+                    }
+                } catch (error) {
+                    console.error('Error restoring document:', error);
+                    if (saved) {
+                        fileInfo.innerHTML = `
+                            <p style="color: #f72585;">⚠️ Restored from cache (server offline)</p>
+                            <p>${saved.filename}</p>
+                        `;
+                    }
+                }
+            }
+        }
+
+        // ===== INITIALIZATION =====
+        async function init() {
+            await checkServer();
+            setupSpeechRecognition();
+            setupEventListeners();
+            loadStats();
+            
+            // Restore last active document
+            await restoreLastDocument();
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                padding: 12px 24px; border-radius: 30px; color: white; font-weight: 500;
+                background: ${type === 'success' ? '#8b6cff' : type === 'error' ? '#f72585' : '#6c7cff'};
+                box-shadow: 0 0 30px rgba(139,108,255,0.6); z-index: 2000;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        // Check server connection
+        async function checkServer() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    statusEl.textContent = 'Connected';
+                    statusEl.className = 'status-badge connected';
+                    enableControls(true);
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = 'status-badge disconnected';
+                enableControls(false);
+                commandBox.innerHTML = '❌ Cannot connect to server. Make sure backend is running on port 5000.';
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                if (data.success) {
+                    docCount.textContent = data.stats.total_documents || 0;
+                    noteCount.textContent = data.stats.total_notes || 0;
+                    bookmarkCount.textContent = data.stats.total_bookmarks || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function enableControls(enabled) {
+            micBtn.disabled = !enabled;
+            urlBtn.disabled = !enabled;
+        }
+
+        function logout() {
+            sessionStorage.removeItem('voicenav_current_user');
+            localStorage.removeItem('voicenav_remember');
+            window.location.href = 'login.html';
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            urlBtn.addEventListener('click', handleUrlSubmit);
+            urlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleUrlSubmit();
+            });
+            
+            micBtn.addEventListener('click', toggleRecording);
+            
+            playBtn.addEventListener('click', playAudio);
+            pauseBtn.addEventListener('click', pauseAudio);
+            stopBtn.addEventListener('click', stopAudio);
+            repeatBtn.addEventListener('click', repeatAudio);
+            playOverviewBtn.addEventListener('click', playOverview);
+            
+            speedSlider.addEventListener('input', (e) => {
+                currentSpeed = parseFloat(e.target.value);
+                speedValue.textContent = currentSpeed.toFixed(1) + 'x';
+                if (currentAudio) {
+                    currentAudio.playbackRate = currentSpeed;
+                }
+            });
+
+            searchBtn.addEventListener('click', searchInDocument);
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchInDocument();
+            });
+
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            printBtn.addEventListener('click', printDocument);
+            downloadTxtBtn.addEventListener('click', downloadDocument);
+
+            // Quiz buttons
+            if (listenQuizBtn) listenQuizBtn.addEventListener('click', listenQuiz);
+            if (stopQuizBtn) stopQuizBtn.addEventListener('click', stopQuizListen);
+        }
+
+        // ===== ENHANCED SPEECH RECOGNITION =====
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                // Enhanced settings for continuous listening
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.maxAlternatives = 3;
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    micBtn.classList.add('active');
+                    recordingStatus.textContent = '🎤 Listening...';
+                    voiceStatus.innerHTML = '🎤 Listening...';
+                    voiceStatus.style.color = '#8b6cff';
+                    showToast('Voice control active - speak naturally', 'info');
+                };
+
+                recognition.onend = () => {
+                    // Don't stop completely - restart if we're supposed to be listening
+                    if (isRecording) {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            console.log('Restarting recognition...');
+                        }
+                    } else {
+                        micBtn.classList.remove('active');
+                        recordingStatus.textContent = '';
+                        voiceStatus.innerHTML = '🎤 Microphone off';
+                        voiceStatus.style.color = '#f72585';
+                    }
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // Show interim results for feedback
+                    const interimEl = document.getElementById('interimResults');
+                    if (interimTranscript && interimEl) {
+                        interimEl.style.display = 'block';
+                        interimEl.textContent = `🔊 ${interimTranscript}`;
+                    } else if (interimEl) {
+                        interimEl.style.display = 'none';
+                    }
+                    
+                    // Process final command
+                    if (finalTranscript) {
+                        document.getElementById('interimResults').style.display = 'none';
+                        commandBox.innerHTML = `<strong>You said:</strong> "${finalTranscript}"`;
+                        processEnhancedCommand(finalTranscript.toLowerCase());
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech error:', event.error);
+                    if (event.error !== 'no-speech') {
+                        stopRecording();
+                        showToast('Voice error: ' + event.error, 'error');
+                    }
+                };
+            } else {
+                micBtn.disabled = true;
+                voiceStatus.innerHTML = '🎤 Not supported';
+                showToast('Voice control not supported in this browser', 'error');
+            }
+        }
+
+        function toggleRecording() {
+            if (!recognition) return;
+            
+            if (isRecording) {
+                // Stop listening
+                isRecording = false;
+                recognition.stop();
+                showToast('Voice control deactivated', 'info');
+            } else {
+                // Start listening continuously
+                try {
+                    isRecording = true;
+                    recognition.start();
+                } catch (e) {
+                    console.log('Restarting recognition...');
+                    setTimeout(() => {
+                        if (isRecording) recognition.start();
+                    }, 100);
+                }
+            }
+        }
+
+        function stopRecording() {
+            if (recognition && isRecording) {
+                isRecording = false;
+                recognition.stop();
+            }
+        }
+
+        // ===== ENHANCED COMMAND PROCESSOR =====
+        function processEnhancedCommand(command) {
+            console.log('🎯 Processing command:', command);
+            
+            // Show processing indicator
+            commandBox.innerHTML += '<br><span style="color: #8b6cff;">⚡ Processing...</span>';
+            
+            // ===== NAVIGATION COMMANDS =====
+            if (command.includes('go to history') || command.includes('show history') || 
+                command.includes('open history') || command.includes('view history')) {
+                commandBox.innerHTML += '<br>🤖: Taking you to History page';
+                speakText('Opening history page');
+                setTimeout(() => { window.location.href = '/history.html'; }, 1000);
+                return;
+            }
+            
+            // ===== SCROLL COMMANDS =====
+            if (command.includes('scroll up')) {
+                commandBox.innerHTML += '<br>🤖: Scrolling up 10%';
+                const scrollAmount = documentViewer.scrollHeight * 0.1;
+                documentViewer.scrollBy({
+                    top: -scrollAmount,
+                    behavior: 'smooth'
+                });
+                return;
+            }
+
+            if (command.includes('scroll down')) {
+                commandBox.innerHTML += '<br>🤖: Scrolling down 10%';
+                const scrollAmount = documentViewer.scrollHeight * 0.1;
+                documentViewer.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
+                return;
+            }
+            
+            if (command.includes('go to notes') || command.includes('show notes') || 
+                command.includes('my notes') || command.includes('open notes')) {
+                commandBox.innerHTML += '<br>🤖: Taking you to Notes page';
+                speakText('Opening your notes');
+                setTimeout(() => { window.location.href = '/notes.html'; }, 1000);
+                return;
+            }
+            
+            if (command.includes('go to chat') || command.includes('open chat') || 
+                command.includes('start chat') || command.includes('talk to assistant')) {
+                commandBox.innerHTML += '<br>🤖: Taking you to Chat page';
+                speakText('Opening chat');
+                setTimeout(() => { window.location.href = '/chat.html'; }, 1000);
+                return;
+            }
+            
+            if (command.includes('go back') || command.includes('previous page')) {
+                commandBox.innerHTML += '<br>🤖: Going back';
+                speakText('Going back');
+                window.history.back();
+                return;
+            }
+            
+            if (command.includes('refresh') || command.includes('reload')) {
+                commandBox.innerHTML += '<br>🤖: Refreshing page';
+                speakText('Refreshing');
+                location.reload();
+                return;
+            }
+            
+            if (command.includes('logout') || command.includes('sign out') || command.includes('log out')) {
+                commandBox.innerHTML += '<br>🤖: Logging you out';
+                speakText('Goodbye');
+                setTimeout(() => { logout(); }, 1000);
+                return;
+            }
+            
+            // ===== DOCUMENT COMMANDS (require document) =====
+            if (!currentDocId) {
+                if (command.includes('upload') || command.includes('add document')) {
+                    commandBox.innerHTML += '<br>🤖: Opening file upload';
+                    speakText('Select a file to upload');
+                    fileInput.click();
+                    return;
+                }
+                
+                if (command.includes('enter url') || command.includes('load url')) {
+                    commandBox.innerHTML += '<br>🤖: Ready for URL';
+                    speakText('Enter a URL');
+                    urlInput.focus();
+                    return;
+                }
+                
+                // If no document and not a navigation command, suggest uploading
+                if (!command.includes('help')) {
+                    commandBox.innerHTML += '<br>🤖: Please upload a document first';
+                    speakText('Please upload a document first');
+                }
+                return;
+            }
+            
+            // ===== DOCUMENT-SPECIFIC COMMANDS =====
+            
+            // Read commands
+            if (command.includes('read') || command.includes('tell me') || command.includes('say')) {
+                // Check for specific section
+                if (sectionsDict && Object.keys(sectionsDict).length > 0) {
+                    for (let sectionName in sectionsDict) {
+                        if (command.includes(sectionName.toLowerCase())) {
+                            commandBox.innerHTML += `<br>🤖: Reading section: ${sectionName}`;
+                            speakText(`Reading ${sectionName}`);
+                            processCommand(`read ${sectionName}`);
+                            return;
+                        }
+                    }
+                }
+                
+                // Default to overview
+                if (command.includes('overview') || command.includes('summary')) {
+                    commandBox.innerHTML += '<br>🤖: Reading overview';
+                    playOverview();
+                    return;
+                }
+                
+                // General read
+                commandBox.innerHTML += '<br>🤖: Reading document';
+                processCommand('read overview');
+                return;
+            }
+            
+            // Summarize commands
+            if (command.includes('summarize') || command.includes('summary') || command.includes('tl;dr')) {
+                // Check for section summary
+                if (sectionsDict && Object.keys(sectionsDict).length > 0) {
+                    for (let sectionName in sectionsDict) {
+                        if (command.includes(sectionName.toLowerCase())) {
+                            commandBox.innerHTML += `<br>🤖: Summarizing section: ${sectionName}`;
+                            processCommand(`summarize ${sectionName}`);
+                            return;
+                        }
+                    }
+                }
+                
+                // Document summary
+                commandBox.innerHTML += '<br>🤖: Generating summary';
+                processCommand('summarize');
+                return;
+            }
+            
+            // Quiz commands
+            if (command.includes('quiz') || command.includes('test me') || command.includes('questions')) {
+                commandBox.innerHTML += '<br>🤖: Generating quiz';
+                processCommand('quiz');
+                return;
+            }
+            
+            // Note commands
+            if (command.includes('take notes') || command.includes('start notes') || 
+                command.includes('begin recording') || command.includes('voice note')) {
+                commandBox.innerHTML += '<br>🤖: Starting voice note recording';
+                startVoiceNote();
+                return;
+            }
+            
+            if (command.includes('stop notes') || command.includes('stop recording') || 
+                command.includes('end notes')) {
+                commandBox.innerHTML += '<br>🤖: Stopping recording';
+                stopVoiceNote();
+                return;
+            }
+            
+            // Extract and add text note
+            if (command.includes('note:') || command.includes('note that') || 
+                command.includes('remember that') || command.includes('save that')) {
+                
+                let noteText = command;
+                const patterns = [
+                    /note:\s*(.+)$/i,
+                    /note that\s*(.+)$/i,
+                    /remember that\s*(.+)$/i,
+                    /save that\s*(.+)$/i
+                ];
+                
+                for (let pattern of patterns) {
+                    const match = command.match(pattern);
+                    if (match) {
+                        noteText = match[1];
+                        break;
+                    }
+                }
+                
+                commandBox.innerHTML += `<br>🤖: Adding note: "${noteText.substring(0, 50)}..."`;
+                processCommand(`note ${noteText}`);
+                return;
+            }
+            
+            // Bookmark commands
+            if (command.includes('bookmark') || command.includes('save this') || command.includes('mark this')) {
+                // Check for specific section
+                if (sectionsDict && Object.keys(sectionsDict).length > 0) {
+                    for (let sectionName in sectionsDict) {
+                        if (command.includes(sectionName.toLowerCase())) {
+                            commandBox.innerHTML += `<br>🤖: Bookmarking section: ${sectionName}`;
+                            processCommand(`bookmark ${sectionName}`);
+                            return;
+                        }
+                    }
+                }
+                
+                commandBox.innerHTML += '<br>🤖: Adding bookmark';
+                processCommand('bookmark');
+                return;
+            }
+            
+            // Show notes/bookmarks
+            if (command.includes('show notes') || command.includes('list notes') || 
+                command.includes('my notes')) {
+                commandBox.innerHTML += '<br>🤖: Showing your notes';
+                loadNotes();
+                document.getElementById('notesList')?.scrollIntoView({ behavior: 'smooth' });
+                speakText('Here are your notes');
+                return;
+            }
+            
+            if (command.includes('show bookmarks') || command.includes('list bookmarks') || 
+                command.includes('my bookmarks')) {
+                commandBox.innerHTML += '<br>🤖: Showing your bookmarks';
+                loadBookmarks();
+                document.getElementById('bookmarksList')?.scrollIntoView({ behavior: 'smooth' });
+                speakText('Here are your bookmarks');
+                return;
+            }
+            
+            // Search/find commands
+            if (command.includes('find') || command.includes('search for') || command.includes('locate')) {
+                // Extract search term
+                let searchTerm = command;
+                const patterns = [
+                    /find\s+(.+)$/i,
+                    /search for\s+(.+)$/i,
+                    /locate\s+(.+)$/i,
+                    /search\s+(.+)$/i
+                ];
+                
+                for (let pattern of patterns) {
+                    const match = command.match(pattern);
+                    if (match) {
+                        searchTerm = match[1];
+                        break;
+                    }
+                }
+                
+                commandBox.innerHTML += `<br>🤖: Searching for: "${searchTerm}"`;
+                searchInput.value = searchTerm;
+                searchInDocument();
+                return;
+            }
+            
+            // Export commands
+            if (command.includes('export') || command.includes('download')) {
+                commandBox.innerHTML += '<br>🤖: Exporting document data';
+                processCommand('export');
+                return;
+            }
+            
+            // Audio control commands
+            if (command.includes('pause')) {
+                commandBox.innerHTML += '<br>🤖: Pausing audio';
+                pauseAudio();
+                return;
+            }
+            
+            if (command.includes('resume') || command.includes('continue')) {
+                commandBox.innerHTML += '<br>🤖: Resuming audio';
+                playAudio();
+                return;
+            }
+            
+            if (command.includes('stop')) {
+                commandBox.innerHTML += '<br>🤖: Stopping audio';
+                stopAudio();
+                return;
+            }
+            
+            if (command.includes('faster') || command.includes('speed up')) {
+                let newSpeed = Math.min(currentSpeed + 0.2, 2.0);
+                speedSlider.value = newSpeed;
+                speedSlider.dispatchEvent(new Event('input'));
+                commandBox.innerHTML += `<br>🤖: Speed increased to ${newSpeed.toFixed(1)}x`;
+                return;
+            }
+            
+            if (command.includes('slower') || command.includes('slow down')) {
+                let newSpeed = Math.max(currentSpeed - 0.2, 0.5);
+                speedSlider.value = newSpeed;
+                speedSlider.dispatchEvent(new Event('input'));
+                commandBox.innerHTML += `<br>🤖: Speed decreased to ${newSpeed.toFixed(1)}x`;
+                return;
+            }
+            
+            // Help command
+            if (command.includes('help') || command.includes('what can i say') || command.includes('commands')) {
+                showVoiceHelp();
+                return;
+            }
+            
+            // If nothing matched, send to existing command processor
+            processCommand(command);
+        }
+
+        function showVoiceHelp() {
+            const helpText = `
+                <strong>🎤 VOICE COMMANDS</strong><br><br>
+                
+                <strong>📍 NAVIGATION:</strong><br>
+                • "Go to history" - Open history page<br>
+                • "Go to notes" - Open notes page<br>
+                • "Go to chat" - Open chat page<br>
+                • "Go back" - Previous page<br>
+                • "Refresh" - Reload page<br>
+                • "Logout" - Sign out<br><br>
+                
+                <strong>📄 DOCUMENT (with file loaded):</strong><br>
+                • "Read overview" - Hear summary<br>
+                • "Read [section]" - Read specific section<br>
+                • "Summarize" - Get text summary<br>
+                • "Summarize [section]" - Section summary<br>
+                • "Quiz" - Generate questions<br>
+                • "Take notes" - Start voice recording<br>
+                • "Stop notes" - End recording<br>
+                • "Note: [text]" - Add text note<br>
+                • "Bookmark this" - Save section<br>
+                • "Show notes" - View all notes<br>
+                • "Find [text]" - Search document<br>
+                • "Export" - Download data<br><br>
+                
+                <strong>🎚️ AUDIO CONTROL:</strong><br>
+                • "Pause / Resume / Stop"<br>
+                • "Faster / Slower" - Change speed<br><br>
+                
+                <strong>📊 HISTORY PAGE:</strong><br>
+                • "Show documents" - Documents tab<br>
+                • "Show commands" - Commands tab<br>
+                • "Show timeline" - Timeline tab<br>
+                • "Clear history" - Delete all<br><br>
+                
+                <strong>📝 NOTES PAGE:</strong><br>
+                • "Show voice notes" - Voice only<br>
+                • "Show text notes" - Text only<br>
+                • "Export notes" - Download all<br>
+                • "Search notes [term]" - Find note<br>
+            `;
+            
+            commandBox.innerHTML = helpText;
+            speakText('Here are the available voice commands');
+        }
+
+        // Quick commands
+        function sendQuickCommand(cmd) {
+            processEnhancedCommand(cmd);
+        }
+
+        // Process Voice Command (original)
+        async function processCommand(command) {
+            if (!command) return;
+
+            if (!currentDocId) {
+                commandBox.innerHTML += '<br><span style="color: #f72585;">⚠️ Please upload a document first</span>';
+                speakText('Please upload a document first');
+                return;
+            }
+
+            commandBox.innerHTML += '<br><strong>Processing...</strong>';
+
+            try {
+                const response = await fetch(`${API_BASE}/command`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        command: command,
+                        document_id: currentDocId
+                    })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    let responseText = '';
+
+                    if (data.message) {
+                        responseText = data.message;
+                        commandBox.innerHTML += `<br><strong>🤖:</strong> ${data.message}`;
+                    }
+
+                    if (data.summary) {
+                        summaryContent.innerHTML = `<p>${data.summary}</p>`;
+                        responseText = 'Summary generated';
+                        showToast('Summary generated!', 'success');
+                    }
+
+                    if (data.answer) {
+                        summaryContent.innerHTML = `<p>${data.answer}</p>`;
+                        responseText = 'Answer provided';
+                    }
+
+                    if (data.quiz) {
+                        displayQuiz(data.quiz);
+                        responseText = 'Quiz generated';
+                        showToast('Quiz generated!', 'success');
+                    }
+
+                    if (data.note) {
+                        await loadNotes();
+                        await loadStats();
+                        showToast('Note saved!', 'success');
+                    }
+
+                    if (data.bookmark) {
+                        await loadBookmarks();
+                        await loadStats();
+                        showToast('Bookmark added!', 'success');
+                    }
+
+                    if (data.text) {
+                        highlightInViewer(data.text);
+                    }
+
+                    if (data.audio_url) {
+                        playAudioFromUrl(data.audio_url);
+                    } else if (responseText) {
+                        speakText(responseText);
+                    }
+
+                } else {
+                    commandBox.innerHTML += `<br><span style="color: #f72585;">❌ Error: ${data.error}</span>`;
+                }
+            } catch (error) {
+                commandBox.innerHTML += `<br><span style="color: #f72585;">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // ===== DOCUMENT VIEWER FUNCTIONS =====
+
+        function displayDocument(docData) {
+            documentText = docData.text;
+            documentSections = docData.sections || {};
+            documentOverview = docData.overview || '';
+
+            let html = '';
+
+            html += `<h1>📄 ${docData.filename || 'Document'}</h1>`;
+
+            if (documentOverview) {
+                const safeOverview = documentOverview.replace(/'/g, "\\'");
+                html += `
+                    <div style="margin-bottom: 30px; padding: 20px; background: rgba(139,108,255,0.1); border-radius: 16px;">
+                        <h3>📋 Overview</h3>
+                        <p>${documentOverview}</p>
+                    </div>
+                `;
+            }
+
+            if (Object.keys(documentSections).length > 0) {
+                Object.entries(documentSections).forEach(([sectionName, content]) => {
+                    if (sectionName && !/^\d+$/.test(sectionName)) {
+                        const safeName = sectionName.replace(/'/g, "\\'");
+                        const contentPreview = content.length > 800 ? content.substring(0, 800) + '...' : content;
+                        
+                        html += `
+                            <div style="margin-bottom: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 16px; border-left: 4px solid var(--accent);">
+                                <h3 style="color: var(--accent); margin-bottom: 15px;">📍 ${sectionName}</h3>
+                                <p>${contentPreview}</p>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                const paragraphs = docData.text.split('\n').filter(p => p.trim());
+                paragraphs.forEach(p => {
+                    html += `<p>${p}</p>`;
+                });
+            }
+
+            documentViewer.innerHTML = html;
+
+            const words = docData.text.split(/\s+/).length;
+            const chars = docData.text.length;
+            
+            wordCountEl.textContent = `${words} words`;
+            charCountEl.textContent = `${chars} chars`;
+
+            docInfo.style.display = 'block';
+            docDetails.innerHTML = `
+                <strong>📊 Stats:</strong> ${words} words • ${chars} characters • ${Object.keys(documentSections).length} sections
+            `;
+        }
+
+        function displaySections(sections) {
+            if (!sections || Object.keys(sections).length === 0) {
+                sectionsList.innerHTML = '<p style="color: rgba(255,255,255,0.3); text-align: center;">No sections detected</p>';
+                return;
+            }
+
+            let sectionsHtml = '';
+            
+            Object.entries(sections).forEach(([sectionName, content], index) => {
+                if (sectionName && !/^\d+$/.test(sectionName)) {
+                    const safeName = sectionName.replace(/'/g, "\\'");
+                    sectionsHtml += `
+                        <div class="section-item" onclick="processCommand('read ${safeName}')">
+                            <strong>${index + 1}.</strong> ${sectionName}
+                        </div>
+                    `;
+                }
+            });
+            
+            if (!sectionsHtml) {
+                sectionsList.innerHTML = '<p style="color: rgba(255,255,255,0.3); text-align: center;">No named sections found</p>';
+            } else {
+                sectionsList.innerHTML = sectionsHtml;
+            }
+        }
+
+        function highlightInViewer(text) {
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.classList.remove('highlight');
+            });
+
+            const searchText = text.substring(0, 50);
+            const content = documentViewer.innerHTML;
+            const highlighted = content.replace(
+                new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                match => `<span class="highlight">${match}</span>`
+            );
+            documentViewer.innerHTML = highlighted;
+        }
+
+        function searchInDocument() {
+            const searchTerm = searchInput.value.trim();
+            if (!searchTerm || !documentText) return;
+
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.classList.remove('highlight');
+            });
+
+            const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            const content = documentViewer.innerHTML;
+            
+            if (regex.test(content)) {
+                const highlighted = content.replace(
+                    regex,
+                    match => `<span class="highlight">${match}</span>`
+                );
+                documentViewer.innerHTML = highlighted;
+                
+                const firstMatch = document.querySelector('.highlight');
+                if (firstMatch) {
+                    firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                commandBox.innerHTML = `🔍 Found matches for "${searchTerm}"`;
+            } else {
+                commandBox.innerHTML = `❌ No matches found for "${searchTerm}"`;
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                documentViewer.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function printDocument() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Document Print</title>
+                        <style>
+                            body { font-family: Georgia, serif; line-height: 1.6; padding: 40px; max-width: 800px; margin: 0 auto; }
+                            h1 { color: #8b6cff; }
+                            h2 { color: #6c7cff; }
+                            h3 { color: #8b6cff; }
+                            p { margin-bottom: 15px; }
+                        </style>
+                    </head>
+                    <body>
+                        ${documentViewer.innerHTML}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function downloadDocument() {
+            const content = documentViewer.innerText;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `document_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // File Upload
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            fileInfo.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width: 50%;"></div></div><p>📤 Uploading: ${file.name}</p>`;
+            commandBox.innerHTML = `📤 Uploading ${file.name}...`;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    handleUploadSuccess(data);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                fileInfo.innerHTML = `<p style="color: #f72585;">❌ Upload failed: ${error.message}</p>`;
+                commandBox.innerHTML = `❌ Upload failed: ${error.message}`;
+            }
+        }
+
+        // URL Upload
+        async function handleUrlSubmit() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            fileInfo.innerHTML = `<p>🌐 Loading URL: ${url}</p>`;
+            commandBox.innerHTML = `📤 Loading URL: ${url}...`;
+            urlBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    handleUploadSuccess(data);
+                    urlInput.value = '';
+                } else {
+                    throw new Error(data.error || 'Failed to load URL');
+                }
+            } catch (error) {
+                fileInfo.innerHTML = `<p style="color: #f72585;">❌ Failed: ${error.message}</p>`;
+                commandBox.innerHTML = `❌ Failed to load URL: ${error.message}`;
+            } finally {
+                urlBtn.disabled = false;
+            }
+        }
+
+        // Upload Success
+        function handleUploadSuccess(data) {
+            currentDocId = data.document_id;
+            
+            DocSession.save({
+                document_id: data.document_id,
+                filename: data.filename,
+                section_count: data.section_count,
+                word_count: data.word_count,
+                sections_dict: data.sections_dict || {},
+                overview: data.overview,
+                full_text: data.full_text || '',
+                loaded_at: new Date().toISOString()
+            });
+            
+            sectionsDict = data.sections_dict || {};
+
+            fileInfo.innerHTML = `
+                <p style="color: #8b6cff;">✅ Loaded: ${data.filename}</p>
+                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">📊 ${data.section_count} sections • ${data.word_count} words</p>
+            `;
+
+            docCount.textContent = '1';
+            sectionCount.textContent = data.section_count;
+            sectionCount2.textContent = `(${data.section_count})`;
+
+            displayDocument({
+                filename: data.filename,
+                text: data.overview + '\n\n' + (data.full_text || ''),
+                sections: sectionsDict,
+                overview: data.overview
+            });
+
+            displaySections(sectionsDict);
+
+            playBtn.disabled = false;
+            pauseBtn.disabled = false;
+            stopBtn.disabled = false;
+            repeatBtn.disabled = false;
+            playOverviewBtn.disabled = false;
+
+            commandBox.innerHTML = '✅ Document loaded! Try: "read overview", "summarize", or "quiz"';
+            speakText(`Document loaded with ${data.section_count} sections`);
+
+            loadNotes();
+            loadBookmarks();
+            loadStats();
+        }
+
+        // Audio Functions
+        function playAudioFromUrl(url) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            
+            const fullUrl = url.startsWith('http') ? url : `http://localhost:5000${url}`;
+            currentAudio = new Audio(fullUrl);
+            currentAudio.playbackRate = currentSpeed;
+            currentAudio.play().catch(e => {
+                console.log('Audio error:', e);
+                commandBox.innerHTML += '<br>❌ Audio playback failed';
+            });
+        }
+
+        function playAudio() { 
+            if (currentAudio) {
+                currentAudio.play().catch(e => console.log('Play error:', e));
+            } else if (documentOverview) {
+                speakText(documentOverview);
+            }
+        }
+
+        function pauseAudio() { 
+            if (currentAudio) currentAudio.pause(); 
+        }
+
+        function stopAudio() { 
+            if (currentAudio) { 
+                currentAudio.pause(); 
+                currentAudio.currentTime = 0; 
+            }
+        }
+
+        function repeatAudio() { 
+            if (currentAudio) { 
+                currentAudio.currentTime = 0; 
+                currentAudio.play().catch(e => console.log('Repeat error:', e));
+            }
+        }
+
+        function playOverview() {
+            if (documentOverview) {
+                speakText(documentOverview);
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = currentSpeed;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Notes and Bookmarks
+        async function loadNotes() {
+            if (!currentDocId) return;
+            try {
+                const response = await fetch(`${API_BASE}/notes/${currentDocId}`);
+                const data = await response.json();
+                if (data.notes && data.notes.length > 0) {
+                    notesList.innerHTML = data.notes.map(n => 
+                        `<li>
+                            📝 ${n.text}
+                            <div class="timestamp">${new Date(n.timestamp).toLocaleString()}</div>
+                        </li>`
+                    ).join('');
+                    noteCount.textContent = data.notes.length;
+                    noteCount2.textContent = `(${data.notes.length})`;
+                } else {
+                    notesList.innerHTML = '<li style="color: rgba(255,255,255,0.3);">No notes yet</li>';
+                    noteCount.textContent = '0';
+                    noteCount2.textContent = '';
+                }
+            } catch (e) {
+                console.error('Error loading notes:', e);
+            }
+        }
+
+        async function loadBookmarks() {
+            if (!currentDocId) return;
+            try {
+                const response = await fetch(`${API_BASE}/bookmarks/${currentDocId}`);
+                const data = await response.json();
+                if (data.bookmarks && data.bookmarks.length > 0) {
+                    bookmarksList.innerHTML = data.bookmarks.map(b => 
+                        `<li>
+                            🔖 ${b.section}
+                            <div class="timestamp">${new Date(b.timestamp).toLocaleString()}</div>
+                        </li>`
+                    ).join('');
+                    bookmarkCount.textContent = data.bookmarks.length;
+                    bookmarkCount2.textContent = `(${data.bookmarks.length})`;
+                } else {
+                    bookmarksList.innerHTML = '<li style="color: rgba(255,255,255,0.3);">No bookmarks yet</li>';
+                    bookmarkCount.textContent = '0';
+                    bookmarkCount2.textContent = '';
+                }
+            } catch (e) {
+                console.error('Error loading bookmarks:', e);
+            }
+        }
+
+        // ===== VOICE NOTE FUNCTIONS =====
+        async function startVoiceNote() {
+            if (!currentDocId) {
+                showToast('Please upload a document first', 'error');
+                return;
+            }
+
+            try {
+                // Check if browser supports MediaRecorder
+                if (!navigator.mediaDevices || !window.MediaRecorder) {
+                    showToast('Your browser does not support audio recording', 'error');
+                    return;
+                }
+
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    // Stop all tracks
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Create audio blob
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    
+                    // Send to server
+                    await uploadVoiceNote(audioBlob);
+                };
+                
+                // Start recording
+                mediaRecorder.start();
+                isVoiceNoteRecording = true;
+                
+                // Update UI
+                startVoiceNoteBtn.style.display = 'none';
+                stopVoiceNoteBtn.style.display = 'inline-flex';
+                cancelVoiceNoteBtn.style.display = 'inline-flex';
+                voiceNoteStatus.style.display = 'inline-flex';
+                
+                // Start timer
+                recordingStartTime = Date.now();
+                updateVoiceNoteTimer();
+                
+                showToast('🎤 Recording started...', 'info');
+                
+            } catch (error) {
+                console.error('Error starting voice note:', error);
+                showToast('Failed to access microphone: ' + error.message, 'error');
+            }
+        }
+
+        function stopVoiceNote() {
+            if (mediaRecorder && isVoiceNoteRecording) {
+                mediaRecorder.stop();
+                isVoiceNoteRecording = false;
+                
+                // Stop timer
+                if (recordingTimer) {
+                    clearInterval(recordingTimer);
+                    recordingTimer = null;
+                }
+                
+                // Update UI
+                startVoiceNoteBtn.style.display = 'inline-flex';
+                stopVoiceNoteBtn.style.display = 'none';
+                cancelVoiceNoteBtn.style.display = 'none';
+                voiceNoteStatus.style.display = 'none';
+                voiceNoteTimer.style.display = 'none';
+                
+                showToast('⏹️ Processing recording...', 'info');
+            }
+        }
+
+        function cancelVoiceNote() {
+            if (mediaRecorder && isVoiceNoteRecording) {
+                mediaRecorder.stop();
+                isVoiceNoteRecording = false;
+                
+                // Stop all tracks
+                if (mediaRecorder.stream) {
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+                
+                // Stop timer
+                if (recordingTimer) {
+                    clearInterval(recordingTimer);
+                    recordingTimer = null;
+                }
+                
+                // Update UI
+                startVoiceNoteBtn.style.display = 'inline-flex';
+                stopVoiceNoteBtn.style.display = 'none';
+                cancelVoiceNoteBtn.style.display = 'none';
+                voiceNoteStatus.style.display = 'none';
+                voiceNoteTimer.style.display = 'none';
+                
+                audioChunks = [];
+                
+                showToast('❌ Recording cancelled', 'info');
+            }
+        }
+
+        function updateVoiceNoteTimer() {
+            voiceNoteTimer.style.display = 'inline-block';
+            
+            recordingTimer = setInterval(() => {
+                if (isVoiceNoteRecording) {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    voiceNoteTimer.textContent = `${minutes}:${seconds}`;
+                }
+            }, 1000);
+        }
+
+        async function uploadVoiceNote(audioBlob) {
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, `voice_note_${Date.now()}.wav`);
+                formData.append('document_id', currentDocId);
+                
+                const response = await fetch(`${API_BASE}/voice-note/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show preview
+                    voiceNotePreview.style.display = 'block';
+                    voiceNoteText.textContent = data.text || 'Voice note recorded';
+                    
+                    // Refresh notes list
+                    await loadNotes();
+                    await loadStats();
+                    
+                    showToast('✅ Voice note saved!', 'success');
+                } else {
+                    showToast('Failed to save voice note: ' + data.error, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error uploading voice note:', error);
+                showToast('Error uploading voice note: ' + error.message, 'error');
+            }
+        }
+
+        function addQuickNote() {
+            const note = document.getElementById('quickNoteInput').value.trim();
+            if (note && currentDocId) {
+                processCommand(`note ${note}`);
+                document.getElementById('quickNoteInput').value = '';
+            } else if (!currentDocId) {
+                alert('Please upload a document first');
+            }
+        }
+
+        // Keyboard shortcut (Ctrl+Shift+V) to toggle voice control
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+                e.preventDefault();
+                toggleRecording();
+            }
+        });
+
+        // Start the application
+        init();
+
+        // Make functions available globally
+        window.displayQuiz = displayQuiz;
+        window.generateQuiz = generateQuiz;
+        window.listenQuiz = listenQuiz;
+        window.stopQuizListen = stopQuizListen;
+        window.speakSummary = speakSummary;
+        window.copySummary = copySummary;
+        window.toggleSummaryFullscreen = toggleSummaryFullscreen;
+        window.printSummary = printSummary;
+        window.downloadSummary = downloadSummary;
+        window.toggleQuizFullscreen = toggleQuizFullscreen;
+        window.printQuiz = printQuiz;
+        window.downloadQuiz = downloadQuiz;
+        window.copyToClipboard = copyToClipboard;
+        window.logout = logout;
+        window.sendQuickCommand = sendQuickCommand;
+        window.startVoiceNote = startVoiceNote;
+        window.stopVoiceNote = stopVoiceNote;
+        window.cancelVoiceNote = cancelVoiceNote;
+        window.addQuickNote = addQuickNote;
+    </script>
+</body>
+</html>
+

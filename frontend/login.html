@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceNav – voice login & signup</title>
+    <style>
+        /* ========= RESET ========= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========= THEME (same deep space) ========= */
+        :root {
+            --bg: #0b0f1f;
+            --panel: rgba(20, 24, 48, 0.85);
+            --panel-soft: rgba(20, 24, 48, 0.65);
+            --accent: #8b6cff;
+            --accent-soft: #6c7cff;
+            --glow: rgba(139, 108, 255, 0.6);
+            --text-light: #ffffff;
+            --text-dim: rgba(255,255,255,0.7);
+            --panel-border: rgba(255,255,255,0.04);
+            --error: #f72585;
+            --success: #4cc9f0;
+            --speaker: #4cc9f0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #8b6cff, #0b0f1f 55%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* ========= ANIMATED ORBS ========= */
+        .orb {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent), transparent 70%);
+            filter: blur(60px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .orb-1 { top: -100px; right: -100px; }
+        .orb-2 { bottom: -100px; left: -100px; }
+
+        /* ========= MAIN CARD ========= */
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .login-card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 32px;
+            padding: 40px 35px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========= HEADER ========= */
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .logo span {
+            font-size: 3rem;
+            filter: drop-shadow(0 0 20px var(--glow));
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        /* ========= MESSAGES ========= */
+        .message {
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .error-message { background: rgba(247, 37, 133, 0.1); border: 2px solid var(--error); color: var(--error); }
+        .success-message { background: rgba(76, 201, 240, 0.1); border: 2px solid var(--success); color: var(--success); }
+        .message.hidden { display: none; }
+
+        /* ========= VOICE STATUS PANEL ========= */
+        .voice-status-panel {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 16px;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid var(--accent);
+            transition: all 0.3s;
+        }
+        .voice-status-panel.hidden { display: none; }
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-light);
+        }
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .status-icon.speaking { background: var(--speaker); animation: pulse 1.5s infinite; }
+        .status-text { flex: 1; font-size: 0.95rem; }
+        .heard-text {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: var(--accent);
+            font-size: 1rem;
+            border-left: 4px solid var(--accent);
+        }
+        .interim-text {
+            margin-top: 8px;
+            color: var(--text-dim);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* ========= FORM STYLES ========= */
+        .form-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--accent);
+            font-size: 1.2rem;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 16px 120px 16px 50px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            font-size: 1rem;
+            color: var(--text-light);
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--glow);
+            background: rgba(0,0,0,0.5);
+        }
+        .input-wrapper input::placeholder { color: rgba(255,255,255,0.2); }
+
+        /* ========= VOICE BUTTONS (MIC + SPEAKER) ========= */
+        .voice-actions {
+            position: absolute;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .voice-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .mic-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            color: white;
+        }
+        .speaker-btn {
+            background: linear-gradient(135deg, var(--speaker), #3aa8d8);
+            color: white;
+        }
+        .voice-btn:hover { transform: scale(1.1); }
+        .mic-btn.listening {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+            animation: pulse 1.5s infinite;
+        }
+        .speaker-btn.speaking {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px #f72585; }
+            50% { transform: scale(1.1); box-shadow: 0 0 40px #f72585; }
+            100% { transform: scale(1); box-shadow: 0 0 20px #f72585; }
+        }
+
+        /* highlight active field */
+        .voice-active {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 4px var(--glow) !important;
+        }
+
+        /* eye toggle for password */
+        .pwd-toggle {
+            position: absolute;
+            right: 140px;
+            margin-top: -38px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 6;
+        }
+
+        /* ========= FORM OPTIONS & BUTTON ========= */
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 25px 0;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        .remember-me input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .forgot-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .forgot-link:hover {
+            text-decoration: underline;
+            filter: drop-shadow(0 0 10px var(--glow));
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--panel-border);
+            margin-bottom: 20px;
+        }
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .signup-text {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+        .signup-text a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .signup-text a:hover { text-decoration: underline; }
+
+        /* ===== DEMO CREDENTIALS ===== */
+        .demo-credentials {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            border: 1px dashed var(--accent);
+        }
+        .demo-credentials p {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        .cred-badge {
+            display: inline-block;
+            background: rgba(139,108,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: var(--accent);
+            margin-right: 10px;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            border: 1px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cred-badge:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* mini robot (decoration) */
+        .mini-robot {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            opacity: 0.5;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        .mini-robot:hover { opacity: 1; }
+        .robot-mini { width: 60px; height: 80px; }
+        .robot-mini .head {
+            width: 50px; height: 35px; background: #f5f7ff; border-radius: 15px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 -3px 5px rgba(0,0,0,0.08);
+        }
+        .robot-mini .face {
+            width: 38px; height: 24px; background: linear-gradient(145deg, #0b0f1f, #1a1f3a); border-radius: 8px; position: relative;
+        }
+        .robot-mini .eye {
+            position: absolute; top: 9px; width: 6px; height: 3px; border-radius: 0 0 5px 5px; border-bottom: 2px solid #5ecbff;
+        }
+        .robot-mini .eye.left { left: 8px; } .robot-mini .eye.right { right: 8px; }
+        .robot-mini .body { width: 30px; height: 38px; background: #f5f7ff; border-radius: 20px; margin: -3px auto 0; }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 30px 20px; }
+            .logo h1 { font-size: 1.8rem; }
+            .mini-robot { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="mini-robot">
+        <div class="robot-mini"><div class="head"><div class="face"><span class="eye left"></span><span class="eye right"></span></div></div><div class="body"></div></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo"><span>🎤</span><h1>VoiceNav</h1></div>
+                <div class="subtitle" id="dynamicSubtitle">Speak → Text → Instant Login</div>
+            </div>
+
+            <!-- status panels -->
+            <div id="errorMessage" class="message error-message hidden"><span>⚠️</span><span id="errorText"></span></div>
+            <div id="successMessage" class="message success-message hidden"><span>✅</span><span id="successText"></span></div>
+
+            <!-- voice status panel (mic/speaker feedback) -->
+            <div id="voiceStatusPanel" class="voice-status-panel hidden">
+                <div class="status-row">
+                    <div class="status-icon" id="statusIcon">🎤</div>
+                    <div class="status-text" id="statusMessage">Ready to listen...</div>
+                </div>
+                <div id="heardText" class="heard-text"></div>
+                <div id="interimText" class="interim-text"></div>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginForm" class="form">
+                <div class="form-group">
+                    <label>Email / Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input type="text" id="loginEmail" placeholder="click 🎤 to speak">
+                        <div class="voice-actions">
+                            <button type="button" class="voice-btn mic-btn" onclick="startVoiceInput('loginEmail')" title="Speak email">🎤</button>
+                            <button type="button" class="voice-btn speaker-btn" onclick="speakText('loginEmail')" title="Read field">🔊</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="loginPassword" placeholder="click 🎤 to speak">
+                        <div class="voice-actions">
+                            <button type="button" class="voice-btn mic-btn" onclick="startVoiceInput('loginPassword')" title="Speak password">🎤</button>
+                            <button type="button" class="voice-btn speaker-btn" onclick="speakText('loginPassword')" title="Read field">🔊</button>
+                        </div>
+                        <button type="button" class="pwd-toggle" onclick="togglePasswordField()">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me"><input type="checkbox" id="rememberMe"> <span>Remember me</span></label>
+                    <a class="forgot-link" onclick="forgotPassword()">Forgot password?</a>
+                </div>
+
+                <button class="btn-login" onclick="handleLogin()">Sign In</button>
+                <div class="signup-text">Don't have an account? <a onclick="switchToSignup()">Sign up</a></div>
+            </div>
+
+            <!-- SIGNUP FORM (hidden by default) -->
+            <div id="signupForm" class="form" style="display: none;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="registerName" placeholder="your name">
+                        <div class="voice-actions">
+                            <button type="button" class="voice-btn mic-btn" onclick="startVoiceInput('registerName')">🎤</button>
+                            <button type="button" class="voice-btn speaker-btn" onclick="speakText('registerName')">🔊</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="registerEmail" placeholder="email">
+                        <div class="voice-actions">
+                            <button type="button" class="voice-btn mic-btn" onclick="startVoiceInput('registerEmail')">🎤</button>
+                            <button type="button" class="voice-btn speaker-btn" onclick="speakText('registerEmail')">🔊</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="registerPassword" placeholder="min 6 chars">
+                        <div class="voice-actions">
+                            <button type="button" class="voice-btn mic-btn" onclick="startVoiceInput('registerPassword')">🎤</button>
+                            <button type="button" class="voice-btn speaker-btn" onclick="speakText('registerPassword')">🔊</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="registerConfirmPassword" placeholder="re-enter">
+                        <div class="voice-actions">
+                            <button type="button" class="voice-btn mic-btn" onclick="startVoiceInput('registerConfirmPassword')">🎤</button>
+                            <button type="button" class="voice-btn speaker-btn" onclick="speakText('registerConfirmPassword')">🔊</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-login" onclick="handleRegister()">Create Account</button>
+                <div class="signup-text">Already have an account? <a onclick="switchToLogin()">Sign in</a></div>
+            </div>
+
+            <!-- demo badges with voice -->
+            <div class="demo-credentials">
+                <p>🔑 Demo (click to hear):</p>
+                <span class="cred-badge" onclick="fillAndSpeak('demo@voicenav.com', 'loginEmail')">demo@voicenav.com 🔊</span>
+                <span class="cred-badge" onclick="fillAndSpeak('password123', 'loginPassword')">password123 🔊</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SPEECH & MIC INTEGRATION ====================
+        let recognition = null;
+        let currentVoiceField = null;
+        let isListening = false;
+        let finalTranscript = '';
+        const synthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        // ---------- TEXT TO SPEECH (speaker) ----------
+        function speakText(input) {
+            stopSpeaking();
+            let text = '';
+            if (typeof input === 'string' && input.includes('@') || input.includes('password') || input.length > 20) {
+                text = input;  // direct message
+            } else {
+                const field = document.getElementById(input);
+                if (field) text = field.value || field.placeholder;
+            }
+            if (!text) { showError('Nothing to speak'); return; }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'en-US';
+            currentUtterance.onstart = () => {
+                updateStatus('🔊 Speaking: ' + text, 'speaking');
+                document.querySelectorAll('.speaker-btn').forEach(b => b.classList.add('speaking'));
+                document.getElementById('heardText').innerHTML = '🔊 ' + text;
+            };
+            currentUtterance.onend = () => {
+                hideStatus();
+                document.querySelectorAll('.speaker-btn').forEach(b => b.classList.remove('speaking'));
+                currentUtterance = null;
+            };
+            currentUtterance.onerror = () => {
+                hideStatus();
+                document.querySelectorAll('.speaker-btn').forEach(b => b.classList.remove('speaking'));
+            };
+            synthesis.speak(currentUtterance);
+        }
+
+        function stopSpeaking() {
+            if (synthesis.speaking) synthesis.cancel();
+            document.querySelectorAll('.speaker-btn').forEach(b => b.classList.remove('speaking'));
+            currentUtterance = null;
+        }
+
+        // ---------- SPEECH TO TEXT (mic) ----------
+        function initRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('Voice input requires Chrome / Edge.');
+                return;
+            }
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isListening = true;
+                finalTranscript = '';
+                updateStatus('🎤 Listening... speak now', 'listening');
+                if (currentVoiceField) document.getElementById(currentVoiceField).classList.add('voice-active');
+                document.querySelectorAll('.mic-btn').forEach(btn => {
+                    if (btn.getAttribute('onclick')?.includes(currentVoiceField || 'null')) {
+                        btn.classList.add('listening'); btn.innerHTML = '⏹️';
+                    } else { btn.classList.remove('listening'); btn.innerHTML = '🎤'; }
+                });
+                document.getElementById('heardText').innerHTML = '';
+            };
+
+            recognition.onresult = (event) => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                        if (currentVoiceField) document.getElementById(currentVoiceField).value = finalTranscript.trim();
+                        document.getElementById('heardText').innerHTML = '👂 Heard: ' + finalTranscript;
+                    } else {
+                        interim += transcript;
+                        document.getElementById('interimText').innerHTML = 'Speaking: ' + interim;
+                    }
+                }
+                if (finalTranscript) document.getElementById('statusMessage').innerHTML = 'You said: ' + finalTranscript;
+            };
+
+            recognition.onend = () => {
+                if (isListening && finalTranscript) {
+                    // after stop, briefly speak back what was heard (speaker feedback)
+                    setTimeout(() => {
+                        if (currentVoiceField) speakText(currentVoiceField);
+                    }, 200);
+                }
+                stopVoiceInput();
+            };
+
+            recognition.onerror = (e) => {
+                let msg = e.error === 'not-allowed' ? 'Microphone blocked' : 'Voice error';
+                updateStatus(msg, 'error');
+                setTimeout(hideStatus, 2500);
+                stopVoiceInput();
+            };
+        }
+
+        function startVoiceInput(fieldId) {
+            if (!recognition) initRecognition();
+            if (!recognition) return;
+            if (isListening) { stopVoiceInput(); setTimeout(() => startAfterStop(fieldId), 200); return; }
+            startAfterStop(fieldId);
+        }
+        function startAfterStop(fieldId) {
+            currentVoiceField = fieldId;
+            document.getElementById(fieldId).value = '';
+            finalTranscript = '';
+            try { recognition.start(); } catch { /* ignore */ }
+        }
+
+        function stopVoiceInput() {
+            if (recognition && isListening) { try { recognition.stop(); } catch {} }
+            isListening = false;
+            if (currentVoiceField) document.getElementById(currentVoiceField).classList.remove('voice-active');
+            document.querySelectorAll('.mic-btn').forEach(btn => { btn.classList.remove('listening'); btn.innerHTML = '🎤'; });
+            if (!finalTranscript) hideStatus();
+            currentVoiceField = null;
+        }
+
+        // ---------- UI helpers ----------
+        function updateStatus(msg, type) {
+            const panel = document.getElementById('voiceStatusPanel');
+            const icon = document.getElementById('statusIcon');
+            document.getElementById('statusMessage').innerHTML = msg;
+            panel.classList.remove('hidden');
+            if (type === 'speaking') { icon.innerHTML = '🔊'; icon.classList.add('speaking'); }
+            else { icon.innerHTML = '🎤'; icon.classList.remove('speaking'); }
+        }
+        function hideStatus() {
+            document.getElementById('voiceStatusPanel').classList.add('hidden');
+            document.getElementById('interimText').innerHTML = '';
+        }
+
+        // toggle password visibility
+        function togglePasswordField() {
+            const pwd = document.getElementById('loginPassword');
+            pwd.type = pwd.type === 'password' ? 'text' : 'password';
+        }
+
+        // messages
+        function showError(msg) {
+            document.getElementById('errorText').innerText = msg;
+            document.getElementById('errorMessage').classList.remove('hidden');
+            setTimeout(() => document.getElementById('errorMessage').classList.add('hidden'), 4000);
+        }
+        function showSuccess(msg) {
+            document.getElementById('successText').innerText = msg;
+            document.getElementById('successMessage').classList.remove('hidden');
+            setTimeout(() => document.getElementById('successMessage').classList.add('hidden'), 3000);
+        }
+
+        // fill demo & speak (optional)
+        function fillAndSpeak(value, targetId) {
+            document.getElementById(targetId).value = value;
+            speakText(value);
+        }
+
+        // switch forms
+        function switchToSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+            document.getElementById('dynamicSubtitle').innerText = 'Create account with voice';
+            stopVoiceInput(); stopSpeaking();
+        }
+        function switchToLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('dynamicSubtitle').innerText = 'Speak → Text → Instant Login';
+            stopVoiceInput(); stopSpeaking();
+        }
+
+        // forgot demo
+        function forgotPassword() {
+            const email = prompt('Enter your email (demo: password is password123)');
+            if (email) showError('Demo: contact admin or use demo pass');
+        }
+
+        // ========== MOCK STORAGE / AUTH (same as original, but with voice greetings) ==========
+        const STORAGE_KEY = 'voicenav_users';
+        const SESSION_KEY = 'voicenav_current_user';
+        const REMEMBER_KEY = 'voicenav_remember';
+
+        function initializeUsers() {
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify([
+                    { id: '1', fullName: 'Demo User', email: 'demo@voicenav.com', username: 'demo', password: 'password123', createdAt: new Date().toISOString() }
+                ]));
+            }
+        }
+        function getUsers() { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        function saveUsers(users) { localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); }
+
+        // login handler (mocked, but with voice)
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const remember = document.getElementById('rememberMe').checked;
+
+            if (!email || !password) {
+                showError('Enter both fields'); speakText('Please enter credentials'); return;
+            }
+
+            const users = getUsers();
+            const user = users.find(u => (u.email === email || u.username === email) && u.password === password);
+            if (user) {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+                if (remember) localStorage.setItem(REMEMBER_KEY, 'true');
+                showSuccess('Login successful! Redirecting...');
+                speakText('Welcome back ' + (user.fullName || 'user'));
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                showError('Invalid credentials'); speakText('Login failed');
+            }
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const pwd = document.getElementById('registerPassword').value.trim();
+            const confirm = document.getElementById('registerConfirmPassword').value.trim();
+
+            if (!name || !email || !pwd || !confirm) { showError('All fields required'); speakText('Please fill all fields'); return; }
+            if (pwd !== confirm) { showError('Passwords mismatch'); speakText('Passwords do not match'); return; }
+            if (pwd.length < 6) { showError('Password min 6 chars'); speakText('Password too short'); return; }
+
+            const users = getUsers();
+            if (users.some(u => u.email === email)) { showError('Email already used'); speakText('Email exists'); return; }
+            if (users.some(u => u.username === email.split('@')[0])) { /* ignore */ }
+
+            const newUser = { id: Date.now().toString(), fullName: name, email, username: email.split('@')[0], password: pwd, createdAt: new Date().toISOString() };
+            users.push(newUser);
+            saveUsers(users);
+            showSuccess('Account created!');
+            speakText('Account created, you can now login');
+            setTimeout(() => { switchToLogin(); document.getElementById('loginEmail').value = email; }, 2000);
+        }
+
+        // global click to stop listening if click outside
+        document.addEventListener('click', (e) => {
+            if (isListening && !e.target.classList.contains('mic-btn') && !e.target.closest('.input-wrapper')) stopVoiceInput();
+        });
+
+        // init
+        initializeUsers();
+        initRecognition();
+
+        // expose globally
+        window.startVoiceInput = startVoiceInput;
+        window.speakText = speakText;
+        window.togglePasswordField = togglePasswordField;
+        window.switchToSignup = switchToSignup;
+        window.switchToLogin = switchToLogin;
+        window.handleLogin = handleLogin;
+        window.handleRegister = handleRegister;
+        window.forgotPassword = forgotPassword;
+        window.fillAndSpeak = fillAndSpeak;
+        window.stopSpeaking = stopSpeaking;
+    </script>
+</body>
+</html>

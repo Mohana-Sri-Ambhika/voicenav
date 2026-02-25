@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceNav – History & Stats</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ========= RESET ========= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========= THEME (matching main app) ========= */
+        :root {
+            --bg: #0b0f1f;
+            --panel: rgba(20, 24, 48, 0.85);
+            --panel-soft: rgba(20, 24, 48, 0.65);
+            --accent: #8b6cff;
+            --accent-soft: #6c7cff;
+            --glow: rgba(139, 108, 255, 0.6);
+            --text-light: #ffffff;
+            --text-dim: rgba(255,255,255,0.7);
+            --panel-border: rgba(255,255,255,0.04);
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --danger: #ef4444;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #8b6cff, #0b0f1f 55%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ========= HEADER ========= */
+        .header {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            padding: 12px 24px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--panel-border);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--glow);
+            background: linear-gradient(135deg, #2c3590, #1d2460);
+        }
+
+        /* ========= STATS GRID ========= */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 40px 110px rgba(139,108,255,0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .stat-sub {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            margin-top: 5px;
+        }
+
+        /* ========= CHARTS ========= */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-box {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 24px;
+            height: 350px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+        }
+
+        .chart-box h3 {
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ========= TABS ========= */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--panel-soft);
+            padding: 10px;
+            border-radius: 50px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            color: var(--text-dim);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(139,108,255,0.2);
+            color: white;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        /* ========= CARDS ========= */
+        .card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+            border: 1px solid var(--panel-border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(139,108,255,0.2);
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            color: white;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* ========= TIMELINE ========= */
+        .timeline {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .timeline-item {
+            padding: 18px;
+            background: linear-gradient(135deg, #1b2150, #121638);
+            border-radius: 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s;
+            border: 1px solid var(--panel-border);
+        }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .timeline-item.document {
+            border-left-color: var(--success);
+        }
+
+        .timeline-item.command {
+            border-left-color: var(--warning);
+        }
+
+        .timeline-item.note {
+            border-left-color: var(--accent);
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .timeline-detail {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .version-badge {
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+
+        /* ========= DOCUMENTS GRID ========= */
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .document-card {
+            background: linear-gradient(135deg, #1b2150, #121638);
+            border-radius: 24px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+            border: 1px solid var(--panel-border);
+        }
+
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139,108,255,0.3);
+        }
+
+        .document-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px var(--glow));
+        }
+
+        .document-name {
+            font-weight: 600;
+            margin-bottom: 12px;
+            word-break: break-word;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .document-meta {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
+        .document-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(139,108,255,0.2);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-label-small {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .version-info {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* ========= COMMANDS TABLE ========= */
+        .commands-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+            border-radius: 20px;
+        }
+
+        .commands-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .commands-table th {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #232a72, #161c4a);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .commands-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(139,108,255,0.2);
+            color: var(--text-dim);
+        }
+
+        .commands-table tr:hover {
+            background: rgba(139,108,255,0.1);
+        }
+
+        .command-intent {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .intent-read { background: rgba(76, 201, 240, 0.2); color: #4cc9f0; border: 1px solid #4cc9f0; }
+        .intent-summarize { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid #4caf50; }
+        .intent-explain { background: rgba(255, 152, 0, 0.2); color: #ff9800; border: 1px solid #ff9800; }
+        .intent-chat { background: rgba(156, 39, 176, 0.2); color: #9c27b0; border: 1px solid #9c27b0; }
+        .intent-quiz { background: rgba(33, 150, 243, 0.2); color: #2196f3; border: 1px solid #2196f3; }
+        .intent-note { background: rgba(233, 30, 99, 0.2); color: #e91e63; border: 1px solid #e91e63; }
+        .intent-bookmark { background: rgba(103, 58, 183, 0.2); color: #673ab7; border: 1px solid #673ab7; }
+        .intent-control { background: rgba(158, 158, 158, 0.2); color: #9e9e9e; border: 1px solid #9e9e9e; }
+
+        /* ========= BUTTONS ========= */
+        .clear-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #f72585, #b5179e);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--panel-border);
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(247, 37, 133, 0.5);
+        }
+
+        .notes-btn {
+            background: linear-gradient(135deg, #8b6cff, #6c7cff) !important;
+        }
+
+        /* ========= LOADING ========= */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-dim);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(139,108,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========= EMPTY STATE ========= */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 30px var(--glow));
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .empty-state p {
+            color: var(--text-dim);
+        }
+
+        /* ========= SCROLLBARS ========= */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-soft);
+        }
+
+        /* ========= FLOATING BUTTON ========= */
+        .floating-notes-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .notes-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 35px;
+            background: linear-gradient(135deg, #8b6cff, #6c7cff);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px var(--glow);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notes-circle:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 20px 40px var(--glow);
+        }
+
+        .notes-tooltip {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            background: var(--panel);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            border: 1px solid var(--accent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .floating-notes-btn:hover .notes-tooltip {
+            opacity: 1;
+        }
+
+        /* ========= RESPONSIVE ========= */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                border-radius: 30px;
+            }
+            
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .floating-notes-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .notes-circle {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Notes Link -->
+        <div class="header">
+            <div class="logo">
+                <span style="font-size: 2.5rem;">📊</span>
+                <h1>VoiceNav AI</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Main</a>
+                <a href="/notes.html" class="nav-link">📝 Notes</a>
+                <a href="/chat.html" class="nav-link">💬 Chat</a>
+            </div>
+        </div>
+
+        <!-- Stats Overview with Clickable Notes Card -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalDocs">0</div>
+                <div class="stat-label">Unique Documents</div>
+                <div class="stat-sub" id="totalVersions">(0 versions)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalCommands">0</div>
+                <div class="stat-label">Commands</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='/notes.html'" 
+                 style="cursor: pointer; transition: all 0.3s;" 
+                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 0 30px var(--glow)';" 
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                <div class="stat-value" id="totalNotes">0</div>
+                <div class="stat-label">Notes 📝</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalBookmarks">0</div>
+                <div class="stat-label">Bookmarks</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-box">
+                <h3><span>📈</span> Daily Activity</h3>
+                <canvas id="activityChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3><span>🥧</span> Command Types</h3>
+                <canvas id="commandChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('timeline')">📋 Timeline</button>
+            <button class="tab-btn" onclick="switchTab('documents')">📄 Documents</button>
+            <button class="tab-btn" onclick="switchTab('commands')">🎤 Commands</button>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div id="timelineTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>📋</span> Activity Timeline <span class="badge" id="timelineCount">0</span></h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="clear-btn notes-btn" onclick="window.location.href='/notes.html'">📝 View Notes</button>
+                        <button class="clear-btn" onclick="clearHistory()">🗑️ Clear History</button>
+                    </div>
+                </div>
+                <div id="timeline" class="timeline">
+                    <!-- Timeline items will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documentsTab" class="tab-content" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>📄</span> Document History <span class="badge" id="documentsCount">0</span></h2>
+                </div>
+                <div id="documentsList" class="documents-grid">
+                    <!-- Documents will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Commands Tab -->
+        <div id="commandsTab" class="tab-content" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>🎤</span> Command History <span class="badge" id="commandsCount">0</span></h2>
+                </div>
+                <div class="commands-container">
+                    <table class="commands-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Command</th>
+                                <th>Intent</th>
+                                <th>Document</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commandsBody">
+                            <!-- Commands will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Notes Button -->
+    <div class="floating-notes-btn">
+        <div class="notes-tooltip">View All Notes</div>
+        <button class="notes-circle" onclick="window.location.href='/notes.html'">📝</button>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let activityChart = null;
+        let commandChart = null;
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadHistory();
+        });
+
+        // Switch tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tab + 'Tab').style.display = 'block';
+            
+            if (tab === 'documents') loadDocuments();
+            if (tab === 'commands') loadCommands();
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.stats;
+                    document.getElementById('totalDocs').textContent = stats.unique_documents || stats.total_documents || 0;
+                    document.getElementById('totalVersions').textContent = `(${stats.total_versions || stats.total_documents || 0} versions)`;
+                    document.getElementById('totalCommands').textContent = stats.total_commands_history || stats.total_commands || 0;
+                    document.getElementById('totalNotes').textContent = stats.total_notes || 0;
+                    document.getElementById('totalBookmarks').textContent = stats.total_bookmarks || 0;
+                    
+                    createCharts(stats);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load all history
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/history`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayTimeline(data.history);
+                    document.getElementById('timelineCount').textContent = data.history.length;
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+                document.getElementById('timeline').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Connection Error</h3>
+                        <p>Make sure the backend server is running on port 5000</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display timeline
+        function displayTimeline(history) {
+            const timeline = document.getElementById('timeline');
+            
+            if (!history || history.length === 0) {
+                timeline.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>No Activity Yet</h3>
+                        <p>Upload a document or use voice commands to see history</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                const time = new Date(item.timestamp).toLocaleString();
+                
+                if (item.type === 'document') {
+                    html += `
+                        <div class="timeline-item document">
+                            <div class="timeline-time">${time}</div>
+                            <div class="timeline-title">📄 Document Uploaded</div>
+                            <div class="timeline-detail">${item.filename}</div>
+                            <div class="timeline-detail">📊 ${item.sections || 0} sections • ${item.words || 0} words</div>
+                        </div>
+                    `;
+                } else if (item.type === 'command') {
+                    const intentClass = `intent-${item.intent || 'unknown'}`;
+                    html += `
+                        <div class="timeline-item command">
+                            <div class="timeline-time">${time}</div>
+                            <div class="timeline-title">🎤 Command: "${item.command}"</div>
+                            <div class="timeline-detail">📄 ${item.document || 'Unknown document'}</div>
+                            <div class="timeline-detail">
+                                <span class="command-intent ${intentClass}">${item.intent || 'command'}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            timeline.innerHTML = html;
+        }
+
+        // Load documents
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`${API_BASE}/history/documents`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayDocuments(data.documents);
+                    document.getElementById('documentsCount').textContent = data.documents.length;
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('documentsList').innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Error Loading Documents</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display documents
+        function displayDocuments(documents) {
+            const container = document.getElementById('documentsList');
+            
+            if (!documents || documents.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>No Documents</h3>
+                        <p>Upload a document from the main page</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            documents.forEach(doc => {
+                const time = new Date(doc.timestamp || doc.uploaded_at).toLocaleString();
+                const versionCount = doc.version_count || 1;
+                
+                html += `
+                    <div class="document-card">
+                        ${versionCount > 1 ? `<div class="version-info">${versionCount} versions</div>` : ''}
+                        <div class="document-icon">${doc.source_type === 'url' ? '🌐' : '📄'}</div>
+                        <div class="document-name">${doc.filename}</div>
+                        <div class="document-meta">${time}</div>
+                        <div class="document-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">${doc.sections || 0}</span>
+                                <span class="stat-label-small">sections</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">${doc.words || 0}</span>
+                                <span class="stat-label-small">words</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">${doc.message_count || 0}</span>
+                                <span class="stat-label-small">chats</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Load commands
+        async function loadCommands() {
+            try {
+                const response = await fetch(`${API_BASE}/history/commands`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayCommands(data.commands);
+                    document.getElementById('commandsCount').textContent = data.commands.length;
+                }
+            } catch (error) {
+                console.error('Error loading commands:', error);
+            }
+        }
+
+        // Display commands
+        function displayCommands(commands) {
+            const tbody = document.getElementById('commandsBody');
+            
+            if (!commands || commands.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 50px; color: var(--text-dim);">
+                            <div class="empty-state-icon" style="font-size: 3rem;">📭</div>
+                            <h3 style="color: white;">No Commands Yet</h3>
+                            <p style="color: var(--text-dim);">Use voice commands to see them here</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            commands.forEach(cmd => {
+                const time = new Date(cmd.timestamp).toLocaleString();
+                const intentClass = `intent-${cmd.intent || 'unknown'}`;
+                
+                html += `
+                    <tr>
+                        <td>${time}</td>
+                        <td><strong>"${cmd.command}"</strong></td>
+                        <td><span class="command-intent ${intentClass}">${cmd.intent || 'command'}</span></td>
+                        <td>${cmd.document || '-'}</td>
+                        <td>${(cmd.response || '').substring(0, 50)}${(cmd.response || '').length > 50 ? '...' : ''}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Create charts
+        function createCharts(stats) {
+            if (!stats || !stats.daily_stats) return;
+            
+            const dates = Object.keys(stats.daily_stats).sort().slice(-14);
+            const commands = dates.map(d => stats.daily_stats[d]?.commands || 0);
+            const documents = dates.map(d => stats.daily_stats[d]?.documents || 0);
+            
+            // Activity Chart
+            const ctx1 = document.getElementById('activityChart').getContext('2d');
+            
+            if (activityChart) activityChart.destroy();
+            
+            activityChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: dates.map(d => d.slice(5)),
+                    datasets: [
+                        {
+                            label: 'Commands',
+                            data: commands,
+                            borderColor: '#f72585',
+                            backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Documents',
+                            data: documents,
+                            borderColor: '#4cc9f0',
+                            backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: 'rgba(255,255,255,0.7)'
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: 'rgba(255,255,255,0.7)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+            
+            // Command Types Chart
+            const intents = {};
+            if (stats.daily_stats) {
+                Object.values(stats.daily_stats).forEach(day => {
+                    Object.entries(day).forEach(([key, value]) => {
+                        if (key !== 'documents' && key !== 'exports' && value > 0) {
+                            intents[key] = (intents[key] || 0) + value;
+                        }
+                    });
+                });
+            }
+            
+            if (Object.keys(intents).length === 0) {
+                intents['No Data'] = 1;
+            }
+            
+            const ctx2 = document.getElementById('commandChart').getContext('2d');
+            
+            if (commandChart) commandChart.destroy();
+            
+            commandChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(intents).map(i => i.charAt(0).toUpperCase() + i.slice(1)),
+                    datasets: [{
+                        data: Object.values(intents),
+                        backgroundColor: [
+                            '#8b6cff', '#f72585', '#4cc9f0', 
+                            '#f8961e', '#90be6d', '#9c27b0',
+                            '#e9c46a', '#e76f51', '#2a9d8f'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: 'white' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Clear history
+        async function clearHistory() {
+            if (!confirm('Are you sure you want to clear all history?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/history/clear`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ History cleared');
+                    loadStats();
+                    loadHistory();
+                    loadDocuments();
+                    loadCommands();
+                }
+            } catch (error) {
+                console.error('Error clearing history:', error);
+                alert('❌ Failed to clear history');
+            }
+        }
+
+        // Auto-refresh every 10 seconds
+        setInterval(() => {
+            if (document.getElementById('timelineTab').style.display !== 'none') {
+                loadHistory();
+            }
+            if (document.getElementById('documentsTab').style.display !== 'none') {
+                loadDocuments();
+            }
+            if (document.getElementById('commandsTab').style.display !== 'none') {
+                loadCommands();
+            }
+            loadStats();
+        }, 10000);
+    </script>
+</body>
+</html>

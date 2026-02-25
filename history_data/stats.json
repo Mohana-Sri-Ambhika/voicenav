@@ -1,0 +1,49 @@
+{
+  "total_documents": 17,
+  "total_commands": 142,
+  "total_notes": 13,
+  "total_bookmarks": 2,
+  "total_quizzes": 32,
+  "total_exports": 1,
+  "daily_stats": {
+    "2026-02-22": {
+      "documents": 9,
+      "commands": 30,
+      "notes": 3,
+      "bookmarks": 0,
+      "quizzes": 8,
+      "exports": 0
+    },
+    "2026-02-23": {
+      "documents": 19,
+      "commands": 38,
+      "notes": 0,
+      "bookmarks": 0,
+      "quizzes": 8,
+      "exports": 0
+    },
+    "2026-02-24": {
+      "documents": 13,
+      "commands": 39,
+      "notes": 4,
+      "bookmarks": 0,
+      "quizzes": 5,
+      "exports": 1
+    },
+    "2026-02-25": {
+      "documents": 7,
+      "commands": 35,
+      "notes": 5,
+      "bookmarks": 2,
+      "quizzes": 11,
+      "exports": 0
+    }
+  },
+  "last_updated": "2026-02-25T05:50:10.494082",
+  "chat_sessions": 1,
+  "total_messages": 8,
+  "active_documents": 2,
+  "unique_documents": 17,
+  "total_versions": 166,
+  "total_commands_history": 149
+}
