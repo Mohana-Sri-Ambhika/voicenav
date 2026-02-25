@@ -2184,6 +2184,173 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // ===== DROPDOWN VOICE SELECTOR WITH AUTO-PREVIEW =====
+let voices = [];
+let currentVoice = 'default';
+let previewTimeout = null;
+
+// Load voices into dropdown
+async function loadVoiceDropdown() {
+    const select = document.getElementById('voiceSelect');
+    if (!select) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/voices`);
+        const data = await response.json();
+        
+        if (data.success) {
+            voices = data.profiles;
+            currentVoice = data.current.name;
+            
+            // Group voices by accent
+            const grouped = {};
+            voices.forEach(v => {
+                if (!grouped[v.accent]) grouped[v.accent] = [];
+                grouped[v.accent].push(v);
+            });
+            
+            // Build dropdown with optgroups
+            let html = '';
+            for (let [accent, accentVoices] of Object.entries(grouped)) {
+                html += `<optgroup label="${getFlagForAccent(accent)} ${accent} English">`;
+                accentVoices.forEach(v => {
+                    const selected = v.name === currentVoice ? 'selected' : '';
+                    html += `<option value="${v.name}" ${selected}>${v.description}</option>`;
+                });
+                html += '</optgroup>';
+            }
+            
+            select.innerHTML = html;
+            
+            // Show current voice badge
+            const currentVoiceData = voices.find(v => v.name === currentVoice);
+            if (currentVoiceData) {
+                document.getElementById('currentVoiceBadge').style.display = 'inline-block';
+                document.getElementById('currentVoiceBadge').textContent = 
+                    `${getFlagForAccent(currentVoiceData.accent)} ACTIVE`;
+            }
+            
+            // Add change event listener
+            select.addEventListener('change', function(e) {
+                const selectedVoice = e.target.value;
+                selectVoice(selectedVoice);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load voices:', error);
+        select.innerHTML = '<option value="">Error loading voices</option>';
+    }
+}
+
+// Select voice and auto-preview
+async function selectVoice(voiceName) {
+    try {
+        const response = await fetch(`${API_BASE}/voices/set`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile: voiceName })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentVoice = voiceName;
+            
+            // Update badge
+            const voiceData = voices.find(v => v.name === voiceName);
+            if (voiceData) {
+                document.getElementById('currentVoiceBadge').style.display = 'inline-block';
+                document.getElementById('currentVoiceBadge').textContent = 
+                    `${getFlagForAccent(voiceData.accent)} ACTIVE`;
+            }
+            
+            // Show success message
+            showToast(`✓ Voice changed to ${data.profile.description}`, 'success');
+            
+            // AUTO-PREVIEW: Play a sample after 500ms
+            setTimeout(() => {
+                previewSelectedVoice(voiceName);
+            }, 500);
+        }
+    } catch (error) {
+        console.error('Failed to select voice:', error);
+        showToast('Failed to change voice', 'error');
+    }
+}
+
+// Preview selected voice (with auto-play on select)
+async function previewSelectedVoice(voiceName = null) {
+    const voiceToPreview = voiceName || currentVoice;
+    const previewText = 'Hello, this is a voice preview.';
+    
+    // Show preview indicator
+    const previewStatus = document.getElementById('previewStatus');
+    const previewIcon = document.getElementById('previewIcon');
+    const previewMessage = document.getElementById('previewMessage');
+    
+    previewStatus.style.display = 'flex';
+    previewMessage.textContent = 'Loading preview...';
+    previewIcon.classList.add('preview-active');
+    
+    // Clear any existing timeout
+    if (previewTimeout) clearTimeout(previewTimeout);
+    
+    try {
+        const response = await fetch(`${API_BASE}/voices/preview`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                profile: voiceToPreview, 
+                text: previewText 
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.audio_url) {
+            previewMessage.textContent = 'Preview playing...';
+            playAudioFromUrl(data.audio_url);
+            
+            // Auto-hide preview status after 3 seconds
+            previewTimeout = setTimeout(() => {
+                previewStatus.style.display = 'none';
+                previewIcon.classList.remove('preview-active');
+            }, 3000);
+        } else {
+            throw new Error('Preview failed');
+        }
+    } catch (error) {
+        console.error('Preview error:', error);
+        previewMessage.textContent = 'Preview failed';
+        previewIcon.classList.remove('preview-active');
+        
+        // Hide error message after 2 seconds
+        previewTimeout = setTimeout(() => {
+            previewStatus.style.display = 'none';
+        }, 2000);
+    }
+}
+
+// Get flag emoji for accent
+function getFlagForAccent(accent) {
+    const flags = {
+        'American': '🇺🇸',
+        'British': '🇬🇧',
+        'Australian': '🇦🇺',
+        'Indian': '🇮🇳',
+        'South African': '🇿🇦',
+        'Irish': '🇮🇪',
+        'Canadian': '🇨🇦',
+        'New Zealand': '🇳🇿'
+    };
+    return flags[accent] || '🌐';
+}
+
+// Initialize dropdown on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadVoiceDropdown();
+});
+
         // ===== VOICE PROFILE FUNCTIONS =====
 
 // Load all voices
@@ -3546,6 +3713,7 @@ let currentVoice = 'default';
     </script>
 </body>
 </html>
+
 
 
 
